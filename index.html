@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Words">
+<meta name="theme-color" content="#20343D">
+<title>Words: English, Emirati, Korean</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Gowun+Batang:wght@400;700&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --desk:#20343D; --desk-ink:#E7E9E1; --desk-muted:#9FB4B0;
+  --paper:#ECEEE6; --paper-2:#E0E4D9; --ink:#1C2A31; --muted:#5E6E70; --rule:#C9D0C3;
+  --sadu:#9A2B22; --celadon:#3B7163; --gold:#C29A4E; --cover-ink:#F2EEE3; --band:#1C2A31;
+  --f-en:'Alegreya',Georgia,'Times New Roman',serif;
+  --f-ar:'Noto Naskh Arabic','Geeza Pro','Arial',serif;
+  --f-ko:'Gowun Batang','Apple SD Gothic Neo','Malgun Gothic',serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --desk:#0F1619; --desk-ink:#E4E2D8; --desk-muted:#8A9A98;
+    --paper:#1D2427; --paper-2:#161C1F; --ink:#E6E2D6; --muted:#9AA7A6; --rule:#34403F;
+    --sadu:#B4433A; --celadon:#7DB3A3; --gold:#D1AC62; --band:#0F1619; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --desk:#0F1619; --desk-ink:#E4E2D8; --desk-muted:#8A9A98;
+  --paper:#1D2427; --paper-2:#161C1F; --ink:#E6E2D6; --muted:#9AA7A6; --rule:#34403F;
+  --sadu:#B4433A; --celadon:#7DB3A3; --gold:#D1AC62; --band:#0F1619; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--desk);color:var(--desk-ink);font-family:var(--f-en);
+  -webkit-tap-highlight-color:transparent;overscroll-behavior:none;overflow:hidden}
+[hidden]{display:none!important}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.lf-ko{font-family:var(--f-ko)} .lf-ar{font-family:var(--f-ar)}
+
+#app{height:100%;display:grid;grid-template-rows:auto 1fr auto;max-width:560px;margin:0 auto}
+.top{display:flex;align-items:center;gap:4px;padding:8px 10px 2px}
+.where{flex:1;min-width:0;text-align:center}
+.where .t{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.where .p{font-size:13px;color:var(--desk-muted)}
+.icon-btn{width:42px;height:42px;border-radius:50%;border:0;background:transparent;color:inherit;display:grid;place-items:center;flex:none}
+.icon-btn:disabled{opacity:.28}
+.icon-btn svg{width:22px;height:22px}
+.scrub{padding:2px 20px 6px}
+.scrub input{width:100%;accent-color:var(--gold);margin:0;height:22px}
+.stage{min-height:0;display:flex;justify-content:center;padding:4px 16px 8px}
+
+#book{position:relative;width:100%;max-width:460px;height:100%;max-height:860px;perspective:2200px;
+  touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.edges{position:absolute;inset:0;border-radius:4px 14px 14px 4px;background:var(--paper-2);
+  box-shadow:2px 1px 0 var(--paper-2),3px 2px 0 var(--rule),5px 3px 0 var(--paper-2),6px 4px 0 var(--rule),0 18px 40px rgba(0,0,0,.35)}
+.page,.flipper{position:absolute;inset:0}
+.page{z-index:1}
+.flipper{transform-origin:left center;transform-style:preserve-3d;z-index:3;will-change:transform}
+.face{position:absolute;inset:0;background:var(--paper);color:var(--ink);border-radius:4px 14px 14px 4px;overflow:hidden;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column}
+.face::before{content:'';position:absolute;left:0;top:0;bottom:0;width:22px;pointer-events:none;z-index:1;
+  background:linear-gradient(to right,rgba(0,0,0,.16),rgba(0,0,0,0))}
+.face.back{transform:rotateY(180deg);background:linear-gradient(to left,var(--paper-2),var(--paper))}
+.shade{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;
+  background:linear-gradient(to left,rgba(0,0,0,.5),rgba(0,0,0,0) 80%)}
+.under-shade{position:absolute;inset:0;border-radius:4px 14px 14px 4px;pointer-events:none;z-index:2;opacity:0;
+  background:linear-gradient(to right,rgba(0,0,0,.45),rgba(0,0,0,0) 75%)}
+
+/* sadu weave band */
+.sadu{height:30px;flex:none;background:
+  linear-gradient(var(--gold) 0 0) top/100% 3px no-repeat,
+  linear-gradient(var(--gold) 0 0) bottom/100% 3px no-repeat,
+  linear-gradient(135deg,var(--cover-ink) 25%,transparent 25%) -8px 7px/16px 16px repeat-x,
+  linear-gradient(225deg,var(--cover-ink) 25%,transparent 25%) -8px 7px/16px 16px repeat-x,
+  linear-gradient(315deg,var(--sadu) 25%,transparent 25%) 0 7px/16px 16px repeat-x,
+  linear-gradient(45deg,var(--sadu) 25%,transparent 25%) 0 7px/16px 16px repeat-x,
+  var(--band)}
+.sadu.thin{height:16px;background:
+  linear-gradient(135deg,var(--gold) 25%,transparent 25%) -6px 2px/12px 12px repeat-x,
+  linear-gradient(225deg,var(--gold) 25%,transparent 25%) -6px 2px/12px 12px repeat-x,
+  linear-gradient(315deg,var(--sadu) 25%,transparent 25%) 0 2px/12px 12px repeat-x,
+  linear-gradient(45deg,var(--sadu) 25%,transparent 25%) 0 2px/12px 12px repeat-x,
+  var(--band)}
+
+/* cover */
+.face[data-type="cover"]{background:var(--sadu);color:var(--cover-ink)}
+.face[data-type="cover"]::before{background:linear-gradient(to right,rgba(0,0,0,.35),rgba(0,0,0,0))}
+.cover{flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:0}
+.cover-main{flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px;padding:24px 26px 24px 36px}
+.cover-title{display:flex;flex-direction:column}
+.t-en{font-size:clamp(58px,18vw,88px);font-weight:800;line-height:.92;letter-spacing:-.02em}
+.t-ar{font-family:var(--f-ar);font-size:clamp(50px,15vw,74px);line-height:1.35;text-align:right;font-weight:600}
+.t-ko{font-family:var(--f-ko);font-size:clamp(50px,15vw,76px);font-weight:700;line-height:1.05}
+.cover-sub{font-size:17px;line-height:1.45;max-width:28ch;margin:0;opacity:.92}
+.open-btn{align-self:flex-start;background:var(--cover-ink);color:#8A241C;border:0;border-radius:999px;padding:12px 22px;font:700 16px var(--f-en)}
+
+/* guide */
+.guide{flex:1;overflow:auto;padding:24px 20px 16px 34px}
+.guide h2{font-size:26px;line-height:1.1;margin:0 0 12px;font-weight:800}
+.guide ul{margin:0 0 14px;padding-left:18px}
+.guide li{font-size:15.5px;line-height:1.45;margin-bottom:6px}
+.guide h3{font-size:16px;margin:4px 0 6px;color:var(--sadu)}
+.key{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 10px;font-size:15px;margin-bottom:10px}
+.key span{display:flex;gap:6px;align-items:baseline}
+.key b{font-weight:700;min-width:1.6em}
+.key i{font-style:normal;font-family:var(--f-ar);font-size:18px}
+.guide p{font-size:14.5px;line-height:1.45;color:var(--muted);margin:0 0 6px}
+
+/* chapter opener */
+.chap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:30px 24px 20px 36px}
+.chap-num{font-size:15px;color:var(--sadu);font-weight:700}
+.chap-en{font-size:clamp(38px,11vw,54px);line-height:1.02;margin:6px 0 14px;font-weight:800;letter-spacing:-.01em}
+.chap-ko{font-family:var(--f-ko);font-size:28px;font-weight:700}
+.chap-ar{font-family:var(--f-ar);font-size:30px;text-align:right;font-weight:600}
+.chap-meta{margin-top:24px;font-size:15px;color:var(--muted)}
+.bar{height:4px;background:var(--rule);border-radius:2px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--celadon)}
+
+/* word pages */
+.wp{flex:1;display:flex;flex-direction:column;min-height:0;padding:14px 14px 0 28px}
+.wp-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px;color:var(--muted);padding-bottom:6px}
+.wp-head b{color:var(--sadu);font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cols,.row{display:grid;grid-template-columns:1.05fr 1fr 1fr;gap:8px}
+.cols{border-bottom:1.5px solid var(--ink);padding-bottom:4px}
+.cols button{background:none;border:0;padding:4px 0;font:700 13.5px var(--f-en);color:var(--celadon);text-align:left;display:flex;align-items:center;gap:4px;min-height:30px}
+.cols button[data-col="ko"]{font-family:var(--f-ko)}
+.cols button[data-col="ar"]{justify-content:flex-end;font-family:var(--f-ar);font-size:14.5px}
+.cols button.off{color:var(--muted);text-decoration:line-through}
+.rows{list-style:none;margin:0;padding:0;flex:1;overflow:auto;min-height:0}
+.row{align-items:center;min-height:62px;padding:7px 0;border-bottom:1px solid var(--rule);cursor:pointer}
+.row:active{background:rgba(127,127,127,.08)}
+.c{min-width:0}
+.c b{display:block;font-weight:600;line-height:1.2;overflow-wrap:anywhere}
+.c-en b{font-size:17px}
+.c-ko b{font-family:var(--f-ko);font-size:18px;font-weight:700}
+.c-ko.rom b{font-family:var(--f-en);font-size:17px}
+.c-ko.rom small{font-family:var(--f-ko);font-style:normal;font-size:14px;color:var(--muted)}
+.icon-btn.txt{font:700 18px var(--f-en)}
+.chap-rom{font-family:var(--f-en);font-size:19px;font-weight:600;color:var(--muted)}
+.det-sub.big{font-size:22px;color:var(--ink)}
+.c-ar{text-align:right}
+.c-ar b{font-family:var(--f-ar);font-size:20px;line-height:1.35}
+.c small{display:block;font-size:12.5px;color:var(--muted);font-style:italic;margin-top:1px;overflow-wrap:anywhere}
+.mk{display:inline-flex;gap:5px;align-items:center;margin-top:3px;height:12px}
+.mk svg{width:12px;height:12px;color:var(--sadu)}
+.mk-dot{width:7px;height:7px;border-radius:50%;background:var(--celadon)}
+#app.hide-en #book .c-en:not(.peek)>*,
+#app.hide-ko #book .c-ko:not(.peek)>*,
+#app.hide-ar #book .c-ar:not(.peek)>*{filter:blur(7px);opacity:.5}
+.page-foot{flex:none;font-size:12.5px;color:var(--muted);text-align:center;padding:6px 0 8px}
+
+/* end */
+.end{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:24px 24px 24px 36px}
+.end h2{font-size:44px;margin:0;font-weight:800}
+.end p{font-size:17px;line-height:1.45;margin:0;color:var(--muted)}
+.end .row-btns{display:flex;gap:10px;flex-wrap:wrap}
+
+/* korean alphabet pages */
+.jgrid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0;min-height:0}
+.jcell{display:flex;align-items:center;gap:10px;border:1px solid var(--rule);border-radius:14px;background:var(--paper-2);color:var(--ink);padding:8px 10px;text-align:left}
+.jcell:active{transform:scale(.97)}
+.jchar{font-family:var(--f-ko);font-size:34px;font-weight:700;line-height:1}
+.jinfo{display:flex;flex-direction:column;font-size:13px;color:var(--muted);min-width:0}
+.jinfo b{font-size:15px;color:var(--ink)}
+.jinfo bdi{font-family:var(--f-ar);font-size:15px}
+
+/* writing pad */
+.strip{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;-webkit-overflow-scrolling:touch}
+.schip{flex:none;border:1.5px solid var(--rule);background:transparent;color:var(--ink);border-radius:10px;padding:8px 12px;font:600 16px var(--f-en);min-height:42px}
+.schip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.pad{position:relative;width:min(100%,320px);aspect-ratio:1;margin:0 auto;background:var(--paper-2);border:1.5px solid var(--rule);border-radius:16px;overflow:hidden}
+.pad::before,.pad::after{content:'';position:absolute;background:repeating-linear-gradient(to right,var(--rule) 0 6px,transparent 6px 12px);pointer-events:none}
+.pad::before{left:0;right:0;top:50%;height:1px}
+.pad::after{top:0;bottom:0;left:50%;width:1px;background:repeating-linear-gradient(to bottom,var(--rule) 0 6px,transparent 6px 12px)}
+.pad-model{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(70px,34vw,150px);line-height:1;color:var(--rule);padding:8px;text-align:center;overflow-wrap:anywhere;pointer-events:none}
+.pad-model.off{opacity:0}
+.pad-model:not(.lf-ko):not(.lf-ar){font-size:clamp(40px,16vw,74px)}
+.pad-strokes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;fill:none;stroke:var(--celadon);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;transition:opacity .4s}
+.pad-ink{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.pad-info{font-size:15px;color:var(--muted);text-align:center;margin:12px 0 10px;line-height:1.5}
+.pad-info b{color:var(--ink)}
+.pad-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* tabs */
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);padding:2px 4px 6px}
+.tab{background:none;border:0;color:var(--desk-muted);display:flex;flex-direction:column;align-items:center;gap:3px;font:600 11.5px var(--f-en);padding:6px 0;min-height:48px}
+.tab svg{width:23px;height:23px}
+.tab:active{color:var(--desk-ink)}
+
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:20;display:none;background:rgba(5,12,14,.5)}
+.sheet.open{display:flex;align-items:flex-end;justify-content:center}
+.sheet-card{width:100%;max-width:560px;max-height:90%;background:var(--paper);color:var(--ink);border-radius:20px 20px 0 0;
+  display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px);animation:up .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet-head{display:flex;align-items:center;gap:4px;padding:10px 10px 6px 14px}
+.sheet-head h3{flex:1;margin:0;font-size:21px;font-weight:800;padding-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet-body{overflow:auto;padding:4px 20px 22px;-webkit-overflow-scrolling:touch}
+.sheet .row{grid-template-columns:1.05fr 1fr 1fr}
+.list{list-style:none;margin:0;padding:0}
+.hint{font-size:14px;color:var(--muted);margin:10px 0 4px}
+.empty{padding:20px 0;font-size:16px;line-height:1.5}
+.empty p{margin:0 0 8px}
+.search{width:100%;font:17px var(--f-en);padding:12px 14px;border-radius:12px;border:1.5px solid var(--rule);background:var(--paper-2);color:var(--ink);-webkit-appearance:none}
+.search:focus{outline:none;border-color:var(--celadon)}
+
+.toc{list-style:none;margin:0;padding:0}
+.toc-item{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;width:100%;background:none;border:0;border-bottom:1px solid var(--rule);padding:10px 0;text-align:left;color:inherit;font:inherit}
+.toc-item.here .toc-n{background:var(--sadu);color:var(--cover-ink)}
+.toc-n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:var(--sadu);font-weight:800;font-size:15px}
+.toc-t b{display:block;font-size:17px;font-weight:700}
+.toc-sub{font-size:14.5px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.toc-p{font-size:13px;color:var(--muted)}
+
+.det{display:flex;flex-direction:column;gap:10px}
+.det-block{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--paper-2)}
+.det-lang{font-size:13px;color:var(--celadon);font-weight:700}
+.det-word{font-size:32px;font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.det-block.ar .det-word{text-align:right}
+.det-sub{font-size:15px;color:var(--muted);font-style:italic}
+.det-block.ar .det-sub{text-align:right}
+.speak{width:48px;height:48px;border-radius:50%;border:0;background:var(--celadon);color:var(--paper);display:grid;place-items:center;flex:none}
+.speak svg{width:22px;height:22px}
+.speak.sm{width:42px;height:42px;margin:10px auto 0}
+.det-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.btn{border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:12px;padding:12px;font:700 15px var(--f-en);display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px}
+.btn svg{width:18px;height:18px}
+.btn.on{background:var(--ink);color:var(--paper)}
+.btn.primary{background:var(--sadu);border-color:var(--sadu);color:var(--cover-ink)}
+.btn.wide{grid-column:1/-1;width:100%}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 16px}
+.chip{border:1.5px solid var(--rule);background:transparent;color:var(--ink);border-radius:999px;padding:9px 15px;font:600 15px var(--f-en);min-height:42px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.sheet h4{margin:6px 0 0;font-size:15px}
+.warn{color:var(--sadu);font-size:15px;margin:0 0 12px}
+.q-top{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin-top:4px}
+.q-prompt{text-align:center;padding:22px 0 16px}
+.q-word{font-size:42px;font-weight:800;line-height:1.2}
+.q-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.opt{min-height:78px;border:1.5px solid var(--rule);border-radius:14px;background:var(--paper-2);color:var(--ink);padding:10px;font:600 19px var(--f-en);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px}
+.opt small{font-size:12.5px;color:var(--muted);font-style:italic;font-weight:400}
+.opt.right{border-color:var(--celadon);box-shadow:inset 0 0 0 2px var(--celadon)}
+.opt.wrong{border-color:var(--sadu);box-shadow:inset 0 0 0 2px var(--sadu)}
+.opt:disabled{cursor:default}
+.score{font-size:56px;font-weight:800;margin:10px 0 0;line-height:1}
+.score-sub{color:var(--muted);font-size:16px;margin:4px 0 16px}
+
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(10px);z-index:40;
+  background:var(--desk-ink);color:var(--desk);padding:10px 16px;border-radius:12px;font-size:15px;max-width:88vw;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translateX(-50%)}
+@media (prefers-reduced-motion:reduce){.sheet-card{animation:none}.toast{transition:none}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+@keyframes inkfade{from{opacity:0}}
+@media (prefers-reduced-motion:no-preference){
+  .face[data-type="chapter"] .chap>*{animation:rise .55s cubic-bezier(.2,.8,.2,1) backwards}
+  .face[data-type="chapter"] .chap>*:nth-child(2){animation-delay:.07s}
+  .face[data-type="chapter"] .chap>*:nth-child(3){animation-delay:.13s}
+  .face[data-type="chapter"] .chap>*:nth-child(4){animation-delay:.19s}
+  .face[data-type="chapter"] .chap>*:nth-child(5){animation-delay:.25s}
+  .face[data-type="chapter"] .chap>*:nth-child(6){animation-delay:.31s}
+  .face[data-type="cover"] .cover-title>span{animation:rise .7s cubic-bezier(.2,.8,.2,1) backwards}
+  .face[data-type="cover"] .cover-title>span:nth-child(2){animation-delay:.12s}
+  .face[data-type="cover"] .cover-title>span:nth-child(3){animation-delay:.24s}
+  .face[data-type="cover"] .cover-sub,.face[data-type="cover"] .open-btn{animation:rise .7s .36s cubic-bezier(.2,.8,.2,1) backwards}
+  .face[data-type="end"] .end>*{animation:rise .5s cubic-bezier(.2,.8,.2,1) backwards}
+  .jcell{animation:inkfade .4s backwards}
+  .jgrid .jcell:nth-child(n+3){animation-delay:.05s}
+  .jgrid .jcell:nth-child(n+5){animation-delay:.1s}
+  .jgrid .jcell:nth-child(n+7){animation-delay:.15s}
+  .btn.on svg{animation:pop .3s}
+  @keyframes pop{50%{transform:scale(1.35)}}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div>
+    <div class="top">
+      <button class="icon-btn" id="prev" aria-label="Previous page"></button>
+      <div class="where"><div class="t" id="where-t">Words</div><div class="p" id="where-p"></div></div>
+      <button class="icon-btn" id="next" aria-label="Next page"></button>
+      <button class="icon-btn txt" id="roman" aria-label="Show Korean in Roman letters"></button>
+      <button class="icon-btn" id="theme" aria-label="Switch light or dark"></button>
+    </div>
+    <div class="scrub"><input type="range" id="scrub" min="0" max="1" step="1" value="0" aria-label="Go to page"></div>
+  </div>
+  <div class="stage"><div id="book"><div class="edges"></div><div class="under-shade" id="under"></div></div></div>
+  <nav class="tabs">
+    <button class="tab" data-tab="contents"></button>
+    <button class="tab" data-tab="search"></button>
+    <button class="tab" data-tab="write"></button>
+    <button class="tab" data-tab="saved"></button>
+    <button class="tab" data-tab="practice"></button>
+  </nav>
+</div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true">
+  <div class="sheet-card">
+    <div class="sheet-head">
+      <button class="icon-btn" id="sheet-back" aria-label="Back" hidden></button>
+      <h3 id="sheet-title"></h3>
+      <button class="icon-btn" id="sheet-close" aria-label="Close"></button>
+    </div>
+    <div class="sheet-body" id="sheet-body"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/*DATA*/
+const CH=[
+{en:'Essentials',ar:'الأساسيات',ko:'기본 표현',w:`
+hello|مرحبا|mar7aba|안녕하세요|annyeonghaseyo
+goodbye|مع السلامة|ma3 is-salaama|안녕히 가세요|annyeonghi gaseyo
+yes|إيه|eeh|네|ne
+no|لا|la|아니요|aniyo
+please|لو سمحت|law sama7t|부탁합니다|butakamnida
+thank you|مشكور|mashkoor|감사합니다|gamsahamnida
+sorry|آسف|aasif|죄송합니다|joesonghamnida
+okay|أوكي|okay|알겠어요|algesseoyo
+welcome|هلا|hala|환영합니다|hwanyeonghamnida
+excuse me|عن إذنك|3an idhnik|실례합니다|sillyehamnida
+maybe|يمكن|yimkin|아마|ama
+of course|أكيد|akeed|물론|mullon
+again|مرة ثانية|marra thaanya|다시|dasi
+enough|بس|bass|그만|geuman
+here|هني|hni|여기|yeogi
+there|هناك|hnaak|거기|geogi
+what|شو|shu|뭐|mwo
+why|ليش|laish|왜|wae
+where|وين|wain|어디|eodi
+when|متى|mita|언제|eonje
+how|كيف|kaif|어떻게|eotteoke
+who|منو|minu|누구|nugu
+how much|بكم|b-kam|얼마|eolma
+this|هذا|hatha|이것|igeot
+that|هذاك|hathaak|저것|jeogeot`},
+{en:'People & family',ar:'الناس والأهل',ko:'사람과 가족',w:`
+family|عايلة|3aayla|가족|gajok
+mother|أمي|ummi|어머니|eomeoni
+father|أبوي|abooy|아버지|abeoji
+brother|أخو|a5u|형제|hyeongje
+sister|أخت|u5t|자매|jamae
+son|ولد|wild|아들|adeul
+daughter|بنت|bint|딸|ttal
+grandfather|يدّ|yadd|할아버지|harabeoji
+grandmother|يدّة|yadda|할머니|halmeoni
+uncle (father's side)|عمّ|3amm|삼촌|samchon
+uncle (mother's side)|خال|5aal|외삼촌|oesamchon
+aunt (father's side)|عمّة|3amma|고모|gomo
+aunt (mother's side)|خالة|5aala|이모|imo
+cousin|ولد عم|wild 3amm|사촌|sachon
+husband|زوج|zooj|남편|nampyeon
+wife|زوجة|zooja|아내|anae
+man|ريّال|rayyaal|남자|namja
+woman|حرمة|7urma|여자|yeoja
+boy|صبي|9abi|소년|sonyeon
+girl|بنيّة|bnayya|소녀|sonyeo
+child|ياهل|yaahil|아이|ai
+children|يهّال|yihhaal|아이들|aideul
+baby|بيبي|beebi|아기|agi
+friend|ربيع|rabee3|친구|chingu
+neighbour|يار|yaar|이웃|iut
+guest|ضيف|dhaif|손님|sonnim
+people|ناس|naas|사람들|saramdeul
+person|شخص|sha59|사람|saram`},
+{en:'The body',ar:'الجسم',ko:'몸',w:`
+body|جسم|jism|몸|mom
+head|راس|raas|머리|meori
+hair|شعر|sha3ar|머리카락|meorikarak
+face|ويه|wayh|얼굴|eolgul
+eye|عين|3ain|눈|nun
+ear|إذن|idhn|귀|gwi
+nose|خشم|5ashm|코|ko
+mouth|حلج|7alj|입|ip
+tooth|سن|sinn|치아|chia
+tongue|لسان|lsaan|혀|hyeo
+neck|رقبة|rugba|목|mok
+shoulder|كتف|chitf|어깨|eokkae
+arm|ذراع|dhraa3|팔|pal
+hand|إيد|eed|손|son
+finger|صبع|9ba3|손가락|songarak
+chest|صدر|9adr|가슴|gaseum
+heart|قلب|galb|심장|simjang
+stomach|بطن|ba6n|배|bae
+back|ظهر|dhahar|등|deung
+leg|ريل|reel|다리|dari
+knee|ركبة|rukba|무릎|mureup
+foot|قدم|gadam|발|bal
+skin|يلد|yild|피부|pibu
+blood|دم|damm|피|pi
+bone|عظم|3adhum|뼈|ppyeo`},
+{en:'At home',ar:'في البيت',ko:'집',w:`
+house|بيت|bait|집|jip
+room|حجرة|7ijra|방|bang
+door|باب|baab|문|mun
+window|دريشة|drisha|창문|changmun
+kitchen|مطبخ|ma6ba5|부엌|bueok
+bathroom|حمّام|7ammaam|화장실|hwajangsil
+bed|سرير|sreer|침대|chimdae
+chair|كرسي|kirsi|의자|uija
+table|طاولة|6aawla|탁자|takja
+sofa|قنفة|gunfa|소파|sopa
+carpet|زولية|zooliyya|카펫|kapet
+wall|طوفة|6oofa|벽|byeok
+roof|سطح|sa6a7|지붕|jibung
+floor|أرض|ardh|바닥|badak
+stairs|درج|daraj|계단|gyedan
+light|ليت|lait|전등|jeondeung
+fan|مروحة|marwa7a|선풍기|seonpunggi
+air conditioner|مكيّف|mkayyif|에어컨|eeokeon
+fridge|ثلاجة|thallaaja|냉장고|naengjanggo
+key|مفتاح|miftaa7|열쇠|yeolsoe
+mirror|منظرة|mandhara|거울|geoul
+pillow|مخدّة|m5adda|베개|begae
+blanket|بطانية|b6aaniyya|이불|ibul
+wardrobe|كبت|kabat|옷장|otjang
+yard|حوي|7awi|마당|madang
+tap|حنفية|7anfiyya|수도꼭지|sudokkokji`},
+{en:'Kitchen',ar:'المطبخ',ko:'부엌',w:`
+cup|فنيان|finyaan|컵|keop
+glass|قلاص|glaas|유리잔|yurijan
+plate|صحن|9a7an|접시|jeopsi
+bowl|طاسة|6aasa|그릇|geureut
+spoon|خاشوقة|5aashooga|숟가락|sutgarak
+fork|شوكة|shooka|포크|pokeu
+knife|سكين|sichcheen|칼|kal
+chopsticks|عيدان أكل|3eedaan akil|젓가락|jeotgarak
+pot|جدر|chidir|냄비|naembi
+frying pan|مقلاة|miglaa|프라이팬|peuraipaen
+oven|فرن|firn|오븐|obeun
+stove|طبّاخ|6abbaa5|가스레인지|gaseureinji
+microwave|مايكرويف|maikroweef|전자레인지|jeonjareinji
+kettle|كتلي|kitli|주전자|jujeonja
+coffee pot|دلّة|dalla|커피포트|keopipoteu
+tray|صينية|9eeniyya|쟁반|jaengban
+bottle|غرشة|ghursha|병|byeong
+tissue|كلينكس|kleenex|휴지|hyuji
+rubbish|زبالة|zbaala|쓰레기|sseuregi`},
+{en:'Food & drink',ar:'الأكل والشرب',ko:'음식과 음료',w:`
+food|أكل|akil|음식|eumsik
+water|ماي|maay|물|mul
+bread|خبز|5ubz|빵|ppang
+rice|عيش|3aish|밥|bap
+meat|لحم|la7am|고기|gogi
+chicken|دياي|diyaay|닭고기|dakgogi
+fish|سمك|simach|생선|saengseon
+egg|بيضة|baidha|달걀|dalgyal
+milk|حليب|7aleeb|우유|uyu
+cheese|جبن|yibin|치즈|chijeu
+butter|زبدة|zibda|버터|beoteo
+salt|ملح|mil7|소금|sogeum
+sugar|شكر|shakar|설탕|seoltang
+black pepper|فلفل أسود|filfil aswad|후추|huchu
+honey|عسل|3asal|꿀|kkul
+dates|تمر|tamr|대추야자|daechuyaja
+oil|زيت|zait|기름|gireum
+flour|طحين|6i7een|밀가루|milgaru
+soup|شوربة|shoorba|국|guk
+salad|سلطة|sala6a|샐러드|saelleodeu
+noodles|نودلز|noodlez|면|myeon
+kimchi|كيمتشي|kimchi|김치|gimchi
+sweets|حلاوة|7alaawa|사탕|satang
+ice cream|آيس كريم|ais kreem|아이스크림|aiseukeurim
+coffee|قهوة|gahwa|커피|keopi
+tea|شاي|chaay|차|cha
+juice|عصير|3a9eer|주스|juseu
+breakfast|ريوق|ryoog|아침 식사|achim siksa
+lunch|غدا|ghada|점심|jeomsim
+dinner|عشا|3asha|저녁 식사|jeonyeok siksa`},
+{en:'Fruit & vegetables',ar:'الفواكه والخضار',ko:'과일과 채소',w:`
+fruit|فواكه|fawaakih|과일|gwail
+vegetables|خضار|5adhaar|채소|chaeso
+apple|تفاح|tiffaa7|사과|sagwa
+banana|موز|mooz|바나나|banana
+orange|برتقال|burtugaal|오렌지|orenji
+grapes|عنب|3inab|포도|podo
+watermelon|يح|yi7|수박|subak
+mango|همبا|hamba|망고|manggo
+lemon|لومي|loomi|레몬|remon
+strawberry|فراولة|faraawla|딸기|ttalgi
+pomegranate|رمّان|rummaan|석류|seongnyu
+peach|خوخ|5oo5|복숭아|boksunga
+potato|بطاط|ba6aa6|감자|gamja
+tomato|طماط|6amaa6|토마토|tomato
+onion|بصل|ba9al|양파|yangpa
+garlic|ثوم|thoom|마늘|maneul
+carrot|جزر|yizar|당근|danggeun
+cucumber|خيار|5yaar|오이|oi
+lettuce|خس|5ass|상추|sangchu
+cabbage|ملفوف|malfoof|양배추|yangbaechu
+aubergine|بيذنجان|beedhinjaan|가지|gaji
+pepper|فلفل|filfil|피망|pimang
+mushroom|فطر|fu6ur|버섯|beoseot
+corn|ذرة|dhura|옥수수|oksusu`},
+{en:'Clothes',ar:'الهدوم',ko:'옷',w:`
+clothes|هدوم|hdoom|옷|ot
+kandura|كندورة|kandoora|칸두라|kandura
+abaya|عباية|3abaaya|아바야|abaya
+headscarf|شيلة|shaila|스카프|seukapeu
+shirt|قميص|gamee9|셔츠|syeocheu
+trousers|سروال|sirwaal|바지|baji
+dress|فستان|fustaan|원피스|wonpiseu
+skirt|تنورة|tannoora|치마|chima
+jacket|جاكيت|jaakait|재킷|jaekit
+pyjamas|بيجامة|beejaama|잠옷|jamot
+hanbok|هانبوك|hanbok|한복|hanbok
+shoes|جوتي|jooti|신발|sinbal
+sandals|نعال|n3aal|샌들|saendeul
+socks|دلاغ|dlaagh|양말|yangmal
+cap|كاب|kaab|모자|moja
+bag|شنطة|shan6a|가방|gabang
+wallet|بوك|book|지갑|jigap
+glasses|نظارة|nadhaara|안경|angyeong
+watch|ساعة|saa3a|손목시계|sonmoksigye
+ring|خاتم|5aatim|반지|banji
+necklace|قلادة|glaada|목걸이|mokgeori
+perfume|عطر|3i6ir|향수|hyangsu
+umbrella|شمسية|shamsiyya|우산|usan`},
+{en:'Colours',ar:'الألوان',ko:'색깔',w:`
+colour|لون|loon|색깔|saekkal
+red|أحمر|a7mar|빨간색|ppalgansaek
+blue|أزرق|azrag|파란색|paransaek
+green|أخضر|a5dhar|초록색|choroksaek
+yellow|أصفر|a9far|노란색|noransaek
+black|أسود|aswad|검은색|geomeunsaek
+white|أبيض|abyadh|흰색|huinsaek
+orange|برتقالي|burtugaali|주황색|juhwangsaek
+purple|بنفسجي|banafsaji|보라색|borasaek
+pink|وردي|wardi|분홍색|bunhongsaek
+brown|بنّي|binni|갈색|galsaek
+grey|رمادي|rmaadi|회색|hoesaek
+gold|ذهبي|dhahabi|금색|geumsaek
+silver|فضّي|fidhdhi|은색|eunsaek
+beige|بيج|beej|베이지색|beijisaek
+navy|كحلي|ku7li|남색|namsaek
+light (shade)|فاتح|faati7|밝은|balgeun
+dark (shade)|غامج|ghaamij|어두운|eoduun`},
+{en:'Numbers',ar:'الأرقام',ko:'숫자',w:`
+zero|صفر|9ifr|영|yeong
+one|واحد|waa7id|하나|hana
+two|اثنين|ithnain|둘|dul
+three|ثلاثة|thalaatha|셋|set
+four|أربعة|arba3a|넷|net
+five|خمسة|5amsa|다섯|daseot
+six|ستة|sitta|여섯|yeoseot
+seven|سبعة|sab3a|일곱|ilgop
+eight|ثمانية|thamaanya|여덟|yeodeol
+nine|تسعة|tis3a|아홉|ahop
+ten|عشرة|3ashra|열|yeol
+eleven|احدعش|i7da3ash|열하나|yeolhana
+twelve|اثنعش|ithna3ash|열둘|yeoldul
+twenty|عشرين|3ishreen|스물|seumul
+thirty|ثلاثين|thalaatheen|서른|seoreun
+fifty|خمسين|5amseen|쉰|swin
+hundred|مية|meya|백|baek
+thousand|ألف|alf|천|cheon
+million|مليون|malyoon|백만|baengman
+half|نص|nu9|반|ban
+first|أول|awwal|첫째|cheotjjae
+second (2nd)|ثاني|thaani|둘째|duljjae
+last|آخر|aa5ir|마지막|majimak
+number|رقم|ragam|숫자|sutja`},
+{en:'Time',ar:'الوقت',ko:'시간',w:`
+time|وقت|wagt|때|ttae
+hour|ساعة|saa3a|시간|sigan
+minute|دقيقة|dageega|분|bun
+second|ثانية|thaanya|초|cho
+day|يوم|yoom|날|nal
+night|ليل|lail|밤|bam
+morning|صبح|9ubu7|아침|achim
+noon|ظهر|dhuhur|정오|jeongo
+afternoon|عصر|3a9ir|오후|ohu
+evening|مسا|masa|저녁|jeonyeok
+today|اليوم|il-yoom|오늘|oneul
+tomorrow|باجر|baachir|내일|naeil
+yesterday|أمس|ams|어제|eoje
+now|الحين|il-7een|지금|jigeum
+later|بعدين|ba3dain|나중에|najunge
+soon|بعد شوي|ba3d shway|곧|got
+week|أسبوع|usboo3|주|ju
+weekend|ويكند|weekend|주말|jumal
+month|شهر|shahar|달|dal
+year|سنة|sana|년|nyeon
+early|بدري|badri|일찍|iljjik
+late|متأخر|mit2a55ir|늦게|neutge
+always|دوم|doom|항상|hangsang
+sometimes|أحياناً|a7yaanan|가끔|gakkeum
+never|أبد|abad|절대|jeoldae`},
+{en:'Days & months',ar:'الأيام والشهور',ko:'요일과 달',w:`
+Sunday|الأحد|il-a7ad|일요일|iryoil
+Monday|الإثنين|il-ithnain|월요일|woryoil
+Tuesday|الثلاثاء|ith-thalaatha|화요일|hwayoil
+Wednesday|الأربعاء|il-arbi3a|수요일|suyoil
+Thursday|الخميس|il-5amees|목요일|mogyoil
+Friday|الجمعة|il-yim3a|금요일|geumyoil
+Saturday|السبت|is-sabt|토요일|toyoil
+January|يناير|yanaayir|1월|irwol
+February|فبراير|fibraayir|2월|iwol
+March|مارس|maaris|3월|samwol
+April|أبريل|abreel|4월|sawol
+May|مايو|maayo|5월|owol
+June|يونيو|yoonyo|6월|yuwol
+July|يوليو|yoolyo|7월|chirwol
+August|أغسطس|aghus6us|8월|parwol
+September|سبتمبر|sibtambar|9월|guwol
+October|أكتوبر|uktoobar|10월|siwol
+November|نوفمبر|noofambar|11월|sibirwol
+December|ديسمبر|deesambar|12월|sibiwol`},
+{en:'Weather & nature',ar:'الجو والطبيعة',ko:'날씨와 자연',w:`
+weather|جو|jaw|날씨|nalssi
+sun|شمس|shams|해|hae
+moon|قمر|gumar|달|dal
+star|نجمة|nijma|별|byeol
+sky|سما|sama|하늘|haneul
+cloud|غيمة|ghaima|구름|gureum
+rain|مطر|mu6ar|비|bi
+wind|هوا|hawa|바람|baram
+storm|عاصفة|3aa9fa|폭풍|pokpung
+fog|ضباب|dhbaab|안개|angae
+snow|ثلج|thalj|눈|nun
+hot|حر|7arr|더운|deoun
+cold|برد|bard|추운|chuun
+humidity|رطوبة|r6ooba|습기|seupgi
+dust|غبار|ghbaar|먼지|meonji
+sea|بحر|ba7ar|바다|bada
+beach|سيف|seef|해변|haebyeon
+desert|برّ|barr|사막|samak
+sand|رمل|ramil|모래|morae
+mountain|جبل|yibal|산|san
+tree|شجرة|shajara|나무|namu
+palm tree|نخلة|na5la|야자나무|yajanamu
+flower|وردة|warda|꽃|kkot
+fire|نار|naar|불|bul
+stone|حصاة|7a9aa|돌|dol
+world|دنيا|dinya|세계|segye`},
+{en:'Animals',ar:'الحيوانات',ko:'동물',w:`
+animal|حيوان|7aiwaan|동물|dongmul
+cat|قطوة|gattwa|고양이|goyangi
+dog|كلب|chalb|개|gae
+bird|طير|6air|새|sae
+horse|حصان|7a9aan|말|mal
+camel|بعير|b3eer|낙타|nakta
+falcon|صقر|9agir|매|mae
+cow|بقرة|bagara|소|so
+sheep|خروف|5aroof|양|yang
+goat|صخلة|9a5la|염소|yeomso
+hen|دياية|diyaaya|닭|dak
+mouse|فار|faar|쥐|jwi
+rabbit|أرنب|arnab|토끼|tokki
+lion|أسد|asad|사자|saja
+tiger|نمر|nimir|호랑이|horangi
+bear|دب|dibb|곰|gom
+monkey|قرد|gird|원숭이|wonsungi
+elephant|فيل|feel|코끼리|kokkiri
+snake|حيّة|7ayya|뱀|baem
+turtle|حمسة|7amsa|거북이|geobugi
+lizard|ضب|dhabb|도마뱀|domabaem
+butterfly|فراشة|faraasha|나비|nabi
+bee|نحلة|na7la|벌|beol
+mosquito|بعوضة|ba3oodha|모기|mogi
+cockroach|صرصور|9ar9oor|바퀴벌레|bakwibeolle
+ant|نملة|nimla|개미|gaemi`},
+{en:'Places in the city',ar:'أماكن في المدينة',ko:'도시의 장소',w:`
+city|مدينة|madeena|도시|dosi
+neighbourhood|فريج|freej|동네|dongne
+street|شارع|shaari3|길|gil
+school|مدرسة|madrasa|학교|hakgyo
+university|جامعة|yaam3a|대학교|daehakgyo
+hospital|مستشفى|mustashfa|병원|byeongwon
+pharmacy|صيدلية|9aidaliyya|약국|yakguk
+mosque|مسيد|msaid|모스크|moseukeu
+market|سوق|soog|시장|sijang
+mall|مول|mool|쇼핑몰|syopingmol
+supermarket|جمعية|yam3iyya|슈퍼마켓|syupeomaket
+bakery|مخبز|ma5baz|빵집|ppangjip
+restaurant|مطعم|ma63am|식당|sikdang
+café|كوفي|kofi|카페|kape
+bank|بنك|bank|은행|eunhaeng
+office|مكتب|maktab|사무실|samusil
+airport|مطار|ma6aar|공항|gonghang
+hotel|فندق|fundug|호텔|hotel
+park|حديقة|7adeega|공원|gongwon
+library|مكتبة|maktaba|도서관|doseogwan
+museum|متحف|mat7af|박물관|bangmulgwan
+cinema|سينما|seenama|영화관|yeonghwagwan
+gym|جيم|jeem|헬스장|helseujang
+salon|صالون|9aaloon|미용실|miyongsil
+police station|مركز شرطة|markaz shur6a|경찰서|gyeongchalseo
+petrol station|محطة بترول|ma7a66at batrool|주유소|juyuso`},
+{en:'Getting around',ar:'المواصلات',ko:'교통',w:`
+car|سيارة|sayyaara|자동차|jadongcha
+bus|باص|baa9|버스|beoseu
+taxi|تكسي|taksi|택시|taeksi
+metro|مترو|metro|지하철|jihacheol
+train|قطار|g6aar|기차|gicha
+aeroplane|طيارة|6ayyaara|비행기|bihaenggi
+boat|لنج|lanj|배|bae
+bicycle|سيكل|saikal|자전거|jajeongeo
+motorbike|ماطور|maa6oor|오토바이|otobai
+driver|دريول|dreywil|운전사|unjeonsa
+ticket|تكت|tikit|표|pyo
+passport|جواز|jawaaz|여권|yeogwon
+luggage|شنط|shina6|짐|jim
+trip|سفرة|safra|여행|yeohaeng
+station|محطة|ma7a66a|역|yeok
+map|خريطة|5aree6a|지도|jido
+road|طريج|6reej|도로|doro
+traffic jam|زحمة|za7ma|교통 체증|gyotong chejeung
+traffic light|إشارة|ishaara|신호등|sinhodeung
+parking|باركنج|baarking|주차장|juchajang
+right|يمين|yimeen|오른쪽|oreunjjok
+left|يسار|yisaar|왼쪽|oenjjok
+straight on|سيدا|seeda|직진|jikjin
+near|قريب|greeb|가까운|gakkaun
+far|بعيد|b3eed|먼|meon`},
+{en:'Work & study',ar:'الشغل والدراسة',ko:'일과 공부',w:`
+work|شغل|shughul|일|il
+job|وظيفة|wadheefa|직업|jigeop
+company|شركة|sharika|회사|hoesa
+manager|مدير|mudeer|매니저|maenijeo
+colleague|زميل|zameel|동료|dongnyo
+salary|معاش|ma3aash|월급|wolgeup
+meeting|اجتماع|iytimaa3|회의|hoeui
+project|مشروع|mashroo3|프로젝트|peurojekteu
+internship|تدريب|tadreeb|인턴십|inteonsip
+holiday|إجازة|iyaaza|휴가|hyuga
+certificate|شهادة|shahaada|자격증|jagyeokjeung
+teacher|أستاذ|ustaadh|선생님|seonsaengnim
+student|طالب|6aalib|학생|haksaeng
+class|صف|9aff|수업|sueop
+lecture|محاضرة|mu7aadhra|강의|gangui
+exam|امتحان|imti7aan|시험|siheom
+homework|واجب|waajib|숙제|sukje
+question|سؤال|su2aal|질문|jilmun
+answer|جواب|jawaab|대답|daedap
+book|كتاب|ktaab|책|chaek
+notebook|دفتر|daftar|공책|gongchaek
+pen|قلم|galam|펜|pen
+pencil|قلم رصاص|galam ra9aa9|연필|yeonpil
+paper|ورقة|wurga|종이|jongi`},
+{en:'Technology',ar:'التكنولوجيا',ko:'기술',w:`
+phone|تيلفون|tilifoon|전화|jeonhwa
+mobile|موبايل|mobail|휴대폰|hyudaepon
+computer|كمبيوتر|kombyootar|컴퓨터|keompyuteo
+laptop|لابتوب|laabtob|노트북|noteubuk
+internet|إنترنت|internet|인터넷|inteonet
+Wi-Fi|واي فاي|wai fai|와이파이|waipai
+password|كلمة السر|kilmat is-sirr|비밀번호|bimilbeonho
+app|تطبيق|ta6beeg|앱|aep
+charger|شاحن|shaa7in|충전기|chungjeongi
+battery|بطارية|ba66aariyya|배터리|baeteori
+screen|شاشة|shaasha|화면|hwamyeon
+keyboard|كيبورد|keeboord|키보드|kibodeu
+camera|كاميرا|kaamira|카메라|kamera
+photo|صورة|9oora|사진|sajin
+video|فيديو|video|동영상|dongyeongsang
+message|مسج|masij|메시지|mesiji
+call|مكالمة|mukaalma|통화|tonghwa
+email|إيميل|eemail|이메일|imeil
+account|حساب|7saab|계정|gyejeong
+website|موقع|mawgi3|웹사이트|wepsaiteu
+file|ملف|malaff|파일|pail
+download|تحميل|ta7meel|다운로드|daunnodeu
+update|تحديث|ta7deeth|업데이트|eopdeiteu
+game|لعبة|li3ba|게임|geim
+headphones|سماعات|sammaa3aat|헤드폰|hedeupon
+code|كود|kood|코드|kodeu`},
+{en:'Feelings',ar:'المشاعر',ko:'감정',w:`
+happy|فرحان|far7aan|행복한|haengbokan
+sad|زعلان|za3laan|슬픈|seulpeun
+angry|معصّب|m3a99ib|화난|hwanan
+tired|تعبان|ta3baan|피곤한|pigonhan
+bored|ضايج|dhaayij|지루한|jiruhan
+scared|خايف|5aayif|겁먹은|geommeogeun
+excited|متحمس|mit7ammis|신난|sinnan
+worried|قلقان|galgaan|걱정되는|geokjeongdoeneun
+hungry|يوعان|yoo3aan|배고픈|baegopeun
+thirsty|عطشان|3a6shaan|목마른|mongmareun
+sleepy|نعسان|na3saan|졸린|jollin
+shy|مستحي|mist7i|부끄러운|bukkeureoun
+relaxed|رايق|raayig|편안한|pyeonanhan
+surprised|مستغرب|mistaghrib|놀란|nollan
+jealous|غيران|ghairaan|질투하는|jiltuhaneun
+proud|فخور|fa5oor|자랑스러운|jarangseureoun
+lonely|وحيد|w7eed|외로운|oeroun
+sick|مريض|mareedh|아픈|apeun
+fine|بخير|b-5air|괜찮은|gwaenchaneun
+love|حب|7ubb|사랑|sarang
+hope|أمل|amal|희망|huimang
+fear|خوف|5oof|두려움|duryeoum`},
+{en:'Describing words',ar:'الصفات',ko:'형용사',w:`
+big|كبير|chibeer|큰|keun
+small|صغير|9ogheer|작은|jageun
+long|طويل|6aweel|긴|gin
+short|قصير|g9eer|짧은|jjalbeun
+new|يديد|yideed|새로운|saeroun
+old (things)|قديم|gadeem|오래된|oraedoen
+old (people)|شيبة|shaiba|늙은|neulgeun
+good|زين|zain|좋은|joeun
+bad|شين|shain|나쁜|nappeun
+beautiful|يميل|yameel|아름다운|areumdaun
+cute|حلو|7ilu|귀여운|gwiyeoun
+ugly|قبيح|gabee7|못생긴|motsaenggin
+easy|سهل|sahil|쉬운|swiun
+difficult|صعب|9a3b|어려운|eoryeoun
+expensive|غالي|ghaali|비싼|bissan
+cheap|رخيص|r5ee9|싼|ssan
+fast|سريع|sree3|빠른|ppareun
+slow|بطيء|ba6ee2|느린|neurin
+clean|نظيف|ndheef|깨끗한|kkaekkeutan
+dirty|وصخ|wasi5|더러운|deoreoun
+full|مترس|mitras|가득한|gadeukan
+empty|فاضي|faadhi|빈|bin
+heavy|ثقيل|thicheel|무거운|mugeoun
+light (weight)|خفيف|5afeef|가벼운|gabyeoun
+strong|قوي|gawi|강한|ganghan
+weak|ضعيف|dha3eef|약한|yakan
+rich|غني|ghani|부유한|buyuhan
+poor|فقير|fageer|가난한|gananhan
+important|مهم|muhimm|중요한|jungyohan
+quiet|هادي|haadi|조용한|joyonghan
+loud|عالي|3aali|시끄러운|sikkeureoun
+delicious|بنين|bneen|맛있는|masinneun
+spicy|حار|7aarr|매운|maeun
+sweet|حالي|7aali|단|dan
+sour|حامض|7aamidh|신|sin
+true|صج|9ich|진짜|jinjja
+wrong|غلط|ghala6|틀린|teullin
+same|نفس|nafs|같은|gateun
+different|غير|ghair|다른|dareun`},
+{en:'Everyday verbs',ar:'أفعال يومية',ko:'일상 동사',w:`
+eat|ياكل|yaakil|먹다|meokda
+drink|يشرب|yishrab|마시다|masida
+sleep|يرقد|yargid|자다|jada
+wake up|ينش|yinish|일어나다|ireonada
+go|يروح|yroo7|가다|gada
+come|ييي|yiyi|오다|oda
+sit|يقعد|yig3id|앉다|anda
+stand|يوقف|yoogaf|서다|seoda
+walk|يمشي|yimshi|걷다|geotda
+run|يركض|yirkidh|달리다|dallida
+open|يفتح|yifta7|열다|yeolda
+close|يسكّر|ysakkir|닫다|datda
+read|يقرا|yigra|읽다|ikda
+write|يكتب|yiktib|쓰다|sseuda
+speak|يرمس|yirmis|말하다|malhada
+listen|يسمع|yisma3|듣다|deutda
+see|يشوف|yshoof|보다|boda
+know|يعرف|ya3rif|알다|alda
+want|يبا|yiba|원하다|wonhada
+like|يحب|y7ibb|좋아하다|joahada
+give|يعطي|ya36i|주다|juda
+take|ياخذ|yaa5idh|가져가다|gajyeogada
+bring|ييب|yeeb|가져오다|gajyeooda
+buy|يشتري|yishtiri|사다|sada
+sell|يبيع|ybee3|팔다|palda
+cook|يطبخ|yi6ba5|요리하다|yorihada
+wash|يغسل|yighsil|씻다|ssitda
+clean|ينظّف|ynadhdhif|청소하다|cheongsohada
+study|يدرس|yidris|공부하다|gongbuhada
+work|يشتغل|yishtaghil|일하다|ilhada
+play|يلعب|yil3ab|놀다|nolda
+help|يساعد|ysaa3id|돕다|dopda
+wait|يتريّا|yitrayya|기다리다|gidarida`},
+{en:'More verbs',ar:'أفعال أكثر',ko:'더 많은 동사',w:`
+think|يفكّر|yfakkir|생각하다|saenggakada
+understand|يفهم|yifham|이해하다|ihaehada
+forget|ينسى|yinsa|잊다|itda
+remember|يتذكّر|yitdhakkar|기억하다|gieokada
+learn|يتعلّم|yit3allam|배우다|baeuda
+teach|يعلّم|y3allim|가르치다|gareuchida
+ask|يسأل|yis2al|묻다|mutda
+show|يراوي|yraawi|보여주다|boyeojuda
+find|يلقى|yilga|찾다|chatda
+laugh|يضحك|yidh7ak|웃다|utda
+cry|يصيح|y9ee7|울다|ulda
+call|يتصل|yitti9il|전화하다|jeonhwahada
+send|يطرّش|y6arrish|보내다|bonaeda
+drive|يسوق|ysoog|운전하다|unjeonhada
+travel|يسافر|ysaafir|여행하다|yeohaenghada
+live|يسكن|yiskin|살다|salda
+start|يبدا|yibda|시작하다|sijakada
+finish|يخلّص|y5alli9|끝내다|kkeunnaeda
+try|يحاول|y7aawil|시도하다|sidohada
+pay|يدفع|yidfa3|지불하다|jiburhada
+change|يغيّر|yghayyir|바꾸다|bakkuda
+put|يحط|y7u6|놓다|nota
+carry|يشل|yshill|들다|deulda
+hold|يلزم|yilzam|잡다|japda
+visit|يزور|yzoor|방문하다|bangmunhada
+meet|يقابل|ygaabil|만나다|mannada
+sing|يغنّي|yghanni|노래하다|noraehada
+dance|يرقص|yirgi9|춤추다|chumchuda
+swim|يسبح|yisba7|수영하다|suyeonghada
+fly|يطير|y6eer|날다|nalda
+fall|يطيح|y6ee7|넘어지다|neomeojida
+lose|يضيّع|ydhayyi3|잃다|ilta
+win|يفوز|yfooz|이기다|igida
+rest|يرتاح|yirtaa7|쉬다|swida
+use|يستخدم|yista5dim|사용하다|sayonghada
+need|يحتاج|yi7taaj|필요하다|piryohada
+enter|يدخل|yid5il|들어가다|deureogada
+go out|يطلع|yi6la3|나가다|nagada
+come back|يرد|yridd|돌아오다|doraoda
+arrive|يوصل|yoo9al|도착하다|dochakada
+break|يكسر|yiksir|깨다|kkaeda
+touch|يلمس|yilmis|만지다|manjida`},
+{en:'Health',ar:'الصحة',ko:'건강',w:`
+health|صحة|9i77a|건강|geongang
+doctor|دختر|da5tar|의사|uisa
+nurse|ممرضة|mumarridha|간호사|ganhosa
+dentist|دختر أسنان|da5tar asnaan|치과 의사|chigwa uisa
+medicine|دوا|dawa|약|yak
+pill|حبّة|7abba|알약|allyak
+pain|عوار|3awaar|통증|tongjeung
+headache|صداع|9adaa3|두통|dutong
+fever|صخونة|9a5oona|열|yeol
+cough|كحّة|ka77a|기침|gichim
+cold (illness)|زكام|zkaam|감기|gamgi
+wound|جرح|yar7|상처|sangcheo
+allergy|حساسية|7asaasiyya|알레르기|allereugi
+appointment|موعد|maw3id|예약|yeyak
+emergency|طوارئ|6awaari2|응급|eunggeup
+ambulance|إسعاف|is3aaf|구급차|gugeupcha
+plaster|لزقة|lazga|밴드|baendeu
+vitamin|فيتامين|feetameen|비타민|bitamin
+exercise|رياضة|riyaadha|운동|undong
+sleep|رقاد|rgaad|잠|jam`},
+{en:'Money & shopping',ar:'البيزات والتسوّق',ko:'돈과 쇼핑',w:`
+money|بيزات|beezaat|돈|don
+price|سعر|si3ir|가격|gagyeok
+dirham|درهم|dirham|디르함|direuham
+won|وون|won|원|won
+cash|كاش|kaash|현금|hyeongeum
+card|بطاقة|b6aaga|카드|kadeu
+receipt|فاتورة|faatoora|영수증|yeongsujeung
+discount|خصم|5a9m|할인|harin
+sale|تنزيلات|tanzeelaat|세일|seil
+shop|دكان|dikkaan|가게|gage
+customer|زبون|zuboon|고객|gogaek
+cashier|كاشير|kaasheer|계산원|gyesanwon
+change (coins)|خردة|5urda|잔돈|jandon
+free (no cost)|ببلاش|b-balaash|무료|muryo
+gift|هدية|hadiyya|선물|seonmul
+size|مقاس|mgaas|사이즈|saijeu
+order|طلب|6alab|주문|jumun
+delivery|توصيل|taw9eel|배달|baedal
+shopping|تسوّق|tasawwug|쇼핑|syoping`},
+{en:'Culture',ar:'الثقافة',ko:'문화',w:`
+country|بلاد|blaad|나라|nara
+language|لغة|lugha|언어|eoneo
+flag|علم|3alam|국기|gukgi
+heritage|تراث|turaath|유산|yusan
+tradition|عادات|3aadaat|전통|jeontong
+prayer|صلاة|9alaa|기도|gido
+Ramadan|رمضان|ramadhaan|라마단|ramadan
+Eid|عيد|3eed|이드|ideu
+wedding|عرس|3irs|결혼식|gyeolhonsik
+majlis|مجلس|mailis|응접실|eungjeopsil
+incense|بخور|b5oor|향|hyang
+oud|عود|3ood|침향|chimhyang
+henna|حنّا|7inna|헤나|hena
+National Day|اليوم الوطني|il-yoom il-wa6ani|국경일|gukgyeongil
+Seollal (Korean New Year)|سولال|seollal|설날|seollal
+Chuseok (harvest festival)|تشوسوك|chuseok|추석|chuseok`},
+{en:'Directions',ar:'الاتجاهات',ko:'방향',w:`
+up|فوق|foog|위|wi
+down|تحت|ta7t|아래|arae
+inside|داخل|daa5il|안|an
+outside|برّا|barra|밖|bak
+in front|قدّام|jiddaam|앞|ap
+behind|ورا|wara|뒤|dwi
+next to|يمّ|yamm|옆|yeop
+between|بين|bain|사이|sai
+middle|وسط|wasa6|가운데|gaunde
+corner|زاوية|zaawya|모퉁이|motungi
+north|شمال|shmaal|북쪽|bukjjok
+south|جنوب|jinoob|남쪽|namjjok
+east|شرق|sharg|동쪽|dongjjok
+west|غرب|gharb|서쪽|seojjok`},
+{en:'Free time',ar:'وقت الفراغ',ko:'여가',w:`
+hobby|هواية|hiwaaya|취미|chwimi
+music|موسيقى|mooseega|음악|eumak
+song|أغنية|ughniya|노래|norae
+film|فلم|filim|영화|yeonghwa
+series|مسلسل|musalsal|드라마|deurama
+drawing|رسم|rasim|그림|geurim
+reading|قراية|graaya|독서|dokseo
+football|كورة|koora|축구|chukgu
+swimming|سباحة|sibaa7a|수영|suyeong
+camping|كشتة|kashta|캠핑|kaemping
+fishing|حداق|7adaag|낚시|naksi
+party|حفلة|7afla|파티|pati
+cooking|طبخ|6ab5|요리|yori
+photography|تصوير|ta9weer|사진 촬영|sajin chwaryeong
+concert|حفلة موسيقية|7afla mooseegiyya|콘서트|konseoteu`},
+{en:'Small words',ar:'كلمات صغيرة',ko:'작은 말',w:`
+I|أنا|ana|나|na
+you|إنت|inta|너|neo
+he|هو|huwa|그|geu
+she|هي|hiya|그녀|geunyeo
+we|احنا|i7na|우리|uri
+they|هم|hum|그들|geudeul
+my|حقّي|7aggi|내|nae
+your|حقّك|7aggik|네|ne
+and|و|w|그리고|geurigo
+or|ولا|walla|또는|ttoneun
+but|بس|bass|하지만|hajiman
+because|لأن|li2ann|때문에|ttaemune
+if|إذا|idha|만약|manyak
+with|ويا|wiyya|같이|gachi
+without|بدون|bidoon|없이|eopsi
+for|حق|7agg|위해|wihae
+from|من|min|부터|buteo
+to|إلى|ila|까지|kkaji
+in|في|fi|에|e
+on|على|3ala|위에|wie
+under|تحت|ta7t|밑에|mite
+all|كل|kil|모두|modu
+some|بعض|ba3dh|조금|jogeum
+nothing|ما شي|ma shai|아무것도|amugeotdo
+more|أكثر|akthar|더|deo
+less|أقل|agall|덜|deol
+very|وايد|waayid|아주|aju
+also|بعد|ba3ad|또|tto
+only|بس بس|bas bas|만|man
+together|سوا|sawa|함께|hamkke
+alone|لحال|l7aal|혼자|honja`},
+{en:'Jobs',ar:'المهن',ko:'직업',w:`
+engineer|مهندس|muhandis|엔지니어|enjinieo
+police officer|شرطي|shur6i|경찰관|gyeongchalgwan
+soldier|عسكري|3askari|군인|gunin
+firefighter|إطفائي|i6faa2i|소방관|sobanggwan
+chef|طبّاخ|6abbaa5|요리사|yorisa
+pilot|طيّار|6ayyaar|조종사|jojongsa
+farmer|مزارع|muzaari3|농부|nongbu
+fisherman|حدّاق|7addaag|어부|eobu
+artist|فنان|fannaan|예술가|yesulga
+singer|مغني|mughanni|가수|gasu
+actor|ممثل|mumaththil|배우|baeu
+writer|كاتب|kaatib|작가|jakga
+journalist|صحفي|9a7afi|기자|gija
+lawyer|محامي|mu7aami|변호사|byeonhosa
+judge|قاضي|gaadhi|판사|pansa
+accountant|محاسب|mu7aasib|회계사|hoegyesa
+programmer|مبرمج|mubarmij|프로그래머|peurogeuraemeo
+designer|مصمم|mu9ammim|디자이너|dijaineo
+barber|حلاق|7allaag|이발사|ibalsa
+tailor|خيّاط|5ayyaa6|재단사|jaedansa
+mechanic|ميكانيكي|meekaaneeki|정비사|jeongbisa
+translator|مترجم|mutarjim|번역가|beonyeokga
+scientist|عالم|3aalim|과학자|gwahakja
+engineer's helper|مساعد|musaa3id|조수|josu`},
+{en:'Housework & care',ar:'شغل البيت والعناية',ko:'집안일과 관리',w:`
+soap|صابون|9aaboon|비누|binu
+shampoo|شامبو|shaamboo|샴푸|syampu
+towel|منشفة|minshafa|수건|sugeon
+toothbrush|فرشاة أسنان|furshaat asnaan|칫솔|chitsol
+toothpaste|معجون أسنان|ma3joon asnaan|치약|chiyak
+comb|مشط|misha6|빗|bit
+razor|موس|moos|면도기|myeondogi
+hairdryer|سشوار|seshwaar|드라이어|deuraieo
+scissors|مقص|mga99|가위|gawi
+needle|إبرة|ibra|바늘|baneul
+thread|خيط|5ai6|실|sil
+broom|مكنسة|miknasa|빗자루|bitjaru
+mop|ممسحة|mimsa7a|대걸레|daegeolle
+bucket|سطل|sa6il|양동이|yangdongi
+sponge|إسفنجة|isfinja|스펀지|seupeonji
+detergent|منظف|mnadhdhif|세제|seje
+washing machine|غسالة|ghassaala|세탁기|setakgi
+vacuum cleaner|مكنسة كهربائية|miknasa kahrabaa2iyya|청소기|cheongsogi
+iron (for clothes)|مكواة|mikwaa|다리미|darimi
+laundry|غسيل|ghaseel|빨래|ppallae`},
+{en:'Tools & materials',ar:'العدّة والمواد',ko:'도구와 재료',w:`
+hammer|جاكوش|chaakoosh|망치|mangchi
+nail|مسمار|mismaar|못|mot
+screw|برغي|burghi|나사|nasa
+screwdriver|درنفيس|darnafees|드라이버|deuraibeo
+saw|منشار|minshaar|톱|top
+ladder|سلّم|sillim|사다리|sadari
+rope|حبل|7abil|밧줄|batjul
+glue|صمغ|9amgh|풀|pul
+tape|لزق|lazig|테이프|teipeu
+wire|سلك|silk|전선|jeonseon
+wood|خشب|5ashab|나무|namu
+metal|حديد|7adeed|철|cheol
+plastic|بلاستيك|blaastik|플라스틱|peullaseutik
+cloth|قماش|gmaash|천|cheon
+leather|جلد|jild|가죽|gajuk
+cotton|قطن|gu6un|면|myeon
+wool|صوف|9oof|양모|yangmo
+cement|سمنت|simint|시멘트|simenteu
+brick|طابوق|6aaboog|벽돌|byeokdol
+paint|صبغ|9abgh|페인트|peinteu`},
+{en:'Shapes & qualities',ar:'الأشكال والصفات',ko:'모양과 성질',w:`
+shape|شكل|shakil|모양|moyang
+circle|دايرة|daayra|원|won
+square|مربّع|murabba3|정사각형|jeongsagakhyeong
+triangle|مثلث|muthallath|삼각형|samgakhyeong
+rectangle|مستطيل|musta6eel|직사각형|jiksagakhyeong
+line|خط|5a66|선|seon
+dot|نقطة|nug6a|점|jeom
+round|مدور|mdawwar|둥근|dunggeun
+flat|مسطّح|msa66a7|평평한|pyeongpyeonghan
+thick|ثخين|thi5een|두꺼운|dukkeoun
+thin|رقيق|rageeg|얇은|yalbeun
+wide|عريض|3areedh|넓은|neolbeun
+narrow|ضيّق|dhayyig|좁은|jobeun
+deep|عميق|3ameeg|깊은|gipeun
+curved|منحني|min7ani|굽은|gubeun
+sharp|حاد|7aad|날카로운|nalkaroun
+soft|ناعم|naa3im|부드러운|budeureoun
+hard|قاسي|gaasi|딱딱한|ttakttakan
+smooth|ملس|malis|매끄러운|maekkeureoun
+rough|خشن|5ishin|거친|geochin
+wet|مبلول|mabloo|젖은|jeojeun
+dry|ناشف|naashif|마른|mareun`},
+{en:'At the restaurant',ar:'في المطعم',ko:'식당에서',w:`
+menu|منيو|minyoo|메뉴|menyu
+waiter|ويتر|weetar|종업원|jongeobwon
+bill|حساب|7saab|계산서|gyesanseo
+tip|بخشيش|ba5sheesh|팁|tip
+takeaway|تيك أواي|teek away|포장|pojang
+reservation|حجز|7ajz|예약|yeyak
+straw|شفاطة|shaffaa6a|빨대|ppaldae
+ice|ثلج|thalj|얼음|eoreum
+portion|وجبة|wajba|인분|inbun
+vegetarian|نباتي|nabaati|채식|chaesik
+halal|حلال|7alaal|할랄|hallal
+grilled|مشوي|mashwi|구운|guun
+fried|مقلي|magli|튀긴|twigin
+boiled|مسلوق|masloog|삶은|salmeun
+fresh|طازج|6aazij|신선한|sinseonhan
+sweet shop|حلويات|7alawiyyaat|디저트 가게|dijeoteu gage`},
+{en:'Travel & hotel',ar:'السفر والفندق',ko:'여행과 호텔',w:`
+visa|فيزا|feeza|비자|bija
+tourist|سايح|saayi7|관광객|gwangwanggaek
+guide|مرشد|murshid|가이드|gaideu
+check-in|تسجيل دخول|tasjeel du5ool|체크인|chekeuin
+suitcase|شنطة سفر|shan6at safar|여행 가방|yeohaeng gabang
+souvenir|تذكار|tidhkaar|기념품|ginyeompum
+currency|عملة|3umla|화폐|hwapye
+exchange|صرافة|9iraafa|환전|hwanjeon
+border|حدود|7dood|국경|gukgyeong
+embassy|سفارة|sifaara|대사관|daesagwan
+flight|رحلة|ri7la|항공편|hanggongpyeon
+gate|بوابة|bawwaaba|탑승구|tapseunggu
+delay|تأخير|ta25eer|지연|jiyeon
+insurance|تأمين|ta2meen|보험|boheom
+licence|رخصة|ru59a|면허증|myeonheojeung`},
+{en:'Safety',ar:'الأمان',ko:'안전',w:`
+danger|خطر|5a6ar|위험|wiheom
+careful|انتبه|intibih|조심|josim
+accident|حادث|7aadith|사고|sago
+safe|آمن|aamin|안전한|anjeonhan
+exit|مخرج|ma5raj|출구|chulgu
+entrance|مدخل|mad5al|입구|ipgu
+police|شرطة|shur6a|경찰|gyeongchal
+fire alarm|إنذار حريق|indhaar 7areeg|화재경보|hwajaegyeongbo
+first aid|إسعافات أولية|is3aafaat awwaliyya|응급처치|eunggeupcheochi
+rescue|إنقاذ|ingaadh|구조|gujo
+lost|ضايع|dhaayi3|잃어버린|ireobeorin
+stolen|مسروق|masroog|도난당한|donandanghan
+help|مساعدة|musaa3ada|도움|doum
+warning|تحذير|ta7dheer|경고|gyeonggo`},
+{en:'Screen & drama',ar:'الشاشة والمسلسلات',ko:'화면과 드라마',w:`
+episode|حلقة|7alga|에피소드|episodeu
+season|موسم|mawsim|시즌|sijeun
+actress|ممثلة|mumaththila|여배우|yeobaeu
+director|مخرج|mu5rij|감독|gamdok
+scene|مشهد|mash-had|장면|jangmyeon
+subtitles|ترجمة|tarjama|자막|jamak
+cast|طاقم|6aagim|출연진|churyeonjin
+main character|بطل|ba6al|주인공|juingong
+fan|معجب|mu3jab|팬|paen
+idol|آيدول|aidol|아이돌|aidol
+album|ألبوم|alboom|앨범|aelbeom
+trailer|إعلان تشويقي|i3laan tashweegi|예고편|yegopyeon
+spoiler|حرق أحداث|7arg a7daath|스포일러|seupoilleo
+soundtrack|موسيقى تصويرية|mooseega ta9weeriyya|오에스티|o-e-seu-ti
+remote control|ريموت|reemoot|리모컨|rimokeon`},
+{en:'Action verbs',ar:'أفعال الحركة',ko:'행동 동사',w:`
+cut|يقص|ygu99|자르다|jareuda
+fix|يصلّح|y9alli7|고치다|gochida
+build|يبني|yibni|짓다|jitda
+throw|يرمي|yirmi|던지다|deonjida
+catch|يمسك|yimsik|받다|batda
+push|يزق|yzigg|밀다|milda
+pull|يسحب|yis7ab|당기다|danggida
+jump|ينط|ynu66|뛰다|ttwida
+climb|يتسلق|yitsallag|오르다|oreuda
+wear|يلبس|yilbas|입다|ipda
+take off|يشلح|yishla7|벗다|beotda
+choose|يختار|yi5taar|고르다|goreuda
+count|يعد|y3idd|세다|seda
+measure|يقيس|ygees|재다|jaeda
+repeat|يعيد|y3eed|반복하다|banbokada
+explain|يشرح|yishra7|설명하다|seolmyeonghada
+promise|يوعد|yoo3id|약속하다|yaksokada
+agree|يوافق|ywaafig|동의하다|donguihada
+refuse|يرفض|yirfidh|거절하다|geojeolhada
+allow|يسمح|yisma7|허락하다|heorakada
+save|يحفظ|yi7fadh|저장하다|jeojanghada
+delete|يمسح|yimsa7|삭제하다|sakjehada
+share|يشارك|yshaarik|공유하다|gongyuhada
+cancel|يلغي|yilghi|취소하다|chwisohada`},
+{en:'Sino-Korean numbers',ar:'الأرقام الصينية الكورية',ko:'한자 숫자',w:`
+1|واحد|waa7id|일|il
+2|اثنين|ithnain|이|i
+3|ثلاثة|thalaatha|삼|sam
+4|أربعة|arba3a|사|sa
+5|خمسة|5amsa|오|o
+6|ستة|sitta|육|yuk
+7|سبعة|sab3a|칠|chil
+8|ثمانية|thamaanya|팔|pal
+9|تسعة|tis3a|구|gu
+10|عشرة|3ashra|십|sip
+100|مية|meya|백|baek
+1,000|ألف|alf|천|cheon
+10,000|عشرة آلاف|3ashrat aalaaf|만|man
+counting things|حبّة|7abba|개|gae
+counting people|نفر|nafar|명|myeong
+counting hours|ساعة|saa3a|시|si
+money unit|وون|won|원|won`}
+];
+
+const JAMO_C=[
+{c:'ㄱ',name:'기역',rom:'g / k',ar:'ك',s:['M22,26 L78,26 L66,78']},
+{c:'ㄴ',name:'니은',rom:'n',ar:'ن',s:['M28,20 L28,72 L80,72']},
+{c:'ㄷ',name:'디귿',rom:'d / t',ar:'د',s:['M22,24 L78,24','M22,24 L22,74 L78,74']},
+{c:'ㄹ',name:'리을',rom:'r / l',ar:'ر ل',s:['M22,20 L74,20 L74,46','M22,46 L74,46','M22,46 L22,76 L78,76']},
+{c:'ㅁ',name:'미음',rom:'m',ar:'م',s:['M25,22 L25,76','M25,22 L75,22 L75,76','M25,76 L75,76']},
+{c:'ㅂ',name:'비읍',rom:'b / p',ar:'ب',s:['M25,20 L25,78','M75,20 L75,78','M25,50 L75,50','M25,78 L75,78']},
+{c:'ㅅ',name:'시옷',rom:'s',ar:'س',s:['M50,22 L26,78','M50,40 L76,78']},
+{c:'ㅇ',name:'이응',rom:'ng / silent',ar:'ساكن',s:['M50,22 A28,28 0 1 1 49.8,22']},
+{c:'ㅈ',name:'지읒',rom:'j',ar:'ج',s:['M22,26 L78,26','M50,26 L26,78','M50,42 L76,78']},
+{c:'ㅊ',name:'치읓',rom:'ch',ar:'تش',s:['M50,12 L50,22','M22,32 L78,32','M50,32 L26,80','M50,48 L76,80']},
+{c:'ㅋ',name:'키읔',rom:'k',ar:'ك',s:['M22,25 L78,25 L66,78','M30,50 L72,50']},
+{c:'ㅌ',name:'티읕',rom:'t',ar:'ت',s:['M22,22 L78,22','M22,22 L22,76 L78,76','M28,49 L74,49']},
+{c:'ㅍ',name:'피읖',rom:'p',ar:'پ ف',s:['M20,28 L80,28','M35,28 L35,72','M65,28 L65,72','M20,72 L80,72']},
+{c:'ㅎ',name:'히읗',rom:'h',ar:'هـ',s:['M38,14 L62,14','M22,34 L78,34','M50,44 A18,18 0 1 1 49.8,44']}
+];
+const JAMO_V=[
+{c:'ㅏ',name:'아',rom:'a',ar:'ا',s:['M40,14 L40,86','M40,50 L74,50']},
+{c:'ㅑ',name:'야',rom:'ya',ar:'يا',s:['M40,14 L40,86','M40,38 L74,38','M40,62 L74,62']},
+{c:'ㅓ',name:'어',rom:'eo',ar:'أَ',s:['M26,50 L60,50','M60,14 L60,86']},
+{c:'ㅕ',name:'여',rom:'yeo',ar:'يَ',s:['M26,38 L60,38','M26,62 L60,62','M60,14 L60,86']},
+{c:'ㅗ',name:'오',rom:'o',ar:'و',s:['M50,26 L50,62','M16,62 L84,62']},
+{c:'ㅛ',name:'요',rom:'yo',ar:'يو',s:['M36,26 L36,62','M64,26 L64,62','M16,62 L84,62']},
+{c:'ㅜ',name:'우',rom:'u',ar:'وو',s:['M16,40 L84,40','M50,40 L50,76']},
+{c:'ㅠ',name:'유',rom:'yu',ar:'يوو',s:['M16,40 L84,40','M36,40 L36,76','M64,40 L64,76']},
+{c:'ㅡ',name:'으',rom:'eu',ar:'إ',s:['M16,52 L84,52']},
+{c:'ㅣ',name:'이',rom:'i',ar:'ي',s:['M50,14 L50,86']}
+];
+const JAMO=JAMO_C.concat(JAMO_V);
+const CH_ROM=['gibon pyohyeon','saramgwa gajok','mom','jip','bueok','eumsikgwa eumnyo','gwailgwa chaeso','ot','saekkal','sutja','sigan','yoilgwa dal','nalssiwa jayeon','dongmul','dosiui jangso','gyotong','ilgwa gongbu','gisul','gamjeong','hyeongyongsa','ilsang dongsa','deo maneun dongsa','geongang','dongwa syoping','munhwa','banghyang','yeoga','jageun mal','jigeop','jibanilgwa gwalli','doguwa jaeryo','moyanggwa seongjil','sikdangeseo','yeohaenggwa hotel','anjeon','hwamyeongwa deurama','haengdong dongsa','hanja sutja'];
+const NROM={'ㄱ':'giyeok','ㄴ':'nieun','ㄷ':'digeut','ㄹ':'rieul','ㅁ':'mieum','ㅂ':'bieup','ㅅ':'siot','ㅇ':'ieung','ㅈ':'jieut','ㅊ':'chieut','ㅋ':'kieuk','ㅌ':'tieut','ㅍ':'pieup','ㅎ':'hieut','ㅏ':'a','ㅑ':'ya','ㅓ':'eo','ㅕ':'yeo','ㅗ':'o','ㅛ':'yo','ㅜ':'u','ㅠ':'yu','ㅡ':'eu','ㅣ':'i'};
+JAMO.forEach(j=>j.nrom=NROM[j.c]);
+/*ENDDATA*/
+
+const $=s=>document.querySelector(s);
+const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ICONS={
+  book:'<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+  star:'<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.8z"/>',
+  cards:'<rect x="3.5" y="7" width="12" height="13.5" rx="2"/><path d="M8 3.5h10.5a2 2 0 0 1 2 2V17"/>',
+  speaker:'<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path d="M18 6.5a8 8 0 0 1 0 11"/>',
+  left:'<path d="M14.5 5.5L8 12l6.5 6.5"/>',
+  right:'<path d="M9.5 5.5L16 12l-6.5 6.5"/>',
+  theme:'<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>',
+  pen:'<path d="M4.5 19.5l4.2-1.1 9.6-9.6a2.1 2.1 0 0 0-3-3L5.7 15.4z"/><path d="M14.3 6.6l3 3"/>',
+  close:'<path d="M6 6l12 12M18 6L6 18"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>'
+};
+const ic=(n,fill)=>`<svg viewBox="0 0 24 24" fill="${fill?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+
+/* ---------- data ---------- */
+const norm=s=>s.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
+  .replace(/[\u064B-\u0652\u0640]/g,'').replace(/[إأآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').trim();
+const WORDS=[];
+CH.forEach((c,ci)=>{
+  c.kor=CH_ROM[ci]||'';
+  c.items=[];
+  c.w.trim().split('\n').forEach((line,wi)=>{
+    const [en,ar,arl,ko,kor]=line.split('|').map(s=>s.trim());
+    const w={id:`c${ci}w${wi}`,ch:ci,en,ar,arl,ko,kor,i:WORDS.length};
+    w.key=norm([en,ar,arl,ko,kor].join(' '));
+    WORDS.push(w); c.items.push(w);
+  });
+});
+const LANG={
+  en:{name:'English',get:w=>w.en,sub:()=>''},
+  ko:{name:'Korean',get:w=>w.ko,sub:w=>w.kor},
+  ar:{name:'Emirati',get:w=>w.ar,sub:w=>w.arl}
+};
+const romOn=()=>!!store.s.roman;
+const disp=(l,w)=>l==='ko'&&romOn()?w.kor:LANG[l].get(w);
+const dsub=(l,w)=>l==='ko'&&romOn()?w.ko:LANG[l].sub(w);
+const dfont=l=>l==='ko'&&romOn()?'en':l;
+
+/* ---------- storage ---------- */
+const store=(()=>{
+  let s={fav:[],learned:[],anchor:null,hide:{en:false,ko:false,ar:false},theme:null,roman:true};
+  try{const r=localStorage.getItem('words-book.v1'); if(r) s=Object.assign(s,JSON.parse(r));}catch(e){}
+  return {s,save(){try{localStorage.setItem('words-book.v1',JSON.stringify(s))}catch(e){}}};
+})();
+const fav=new Set(store.s.fav), learned=new Set(store.s.learned);
+function toggleSet(set,id,key){set.has(id)?set.delete(id):set.add(id);store.s[key]=[...set];store.save();}
+
+/* ---------- theme ---------- */
+function applyTheme(){
+  if(store.s.theme) document.documentElement.setAttribute('data-theme',store.s.theme);
+  else document.documentElement.removeAttribute('data-theme');
+  const dark=getComputedStyle(document.documentElement).getPropertyValue('color-scheme').trim()==='dark';
+  document.querySelector('meta[name=theme-color]').setAttribute('content',dark?'#0F1619':'#20343D');
+}
+function isDark(){return getComputedStyle(document.documentElement).getPropertyValue('color-scheme').trim()==='dark';}
+applyTheme();
+
+/* ---------- pages ---------- */
+const book=$('#book'), underShade=$('#under'), scrub=$('#scrub');
+let PAGES=[], chapterStart=[], jamoStart=2, perPage=6, cur=0, curEl=null, turning=null;
+
+function computePerPage(){const h=book.clientHeight||600;return Math.max(3,Math.min(10,Math.floor((h-122)/64)));}
+function buildPages(){
+  PAGES=[{t:'cover'},{t:'guide'}]; chapterStart=[];
+  jamoStart=PAGES.length;
+  for(let k=0;k<JAMO_C.length;k+=8) PAGES.push({t:'jamo',kind:'Consonants',items:JAMO_C.slice(k,k+8)});
+  for(let k=0;k<JAMO_V.length;k+=8) PAGES.push({t:'jamo',kind:'Vowels',items:JAMO_V.slice(k,k+8)});
+  CH.forEach((c,ci)=>{
+    chapterStart[ci]=PAGES.length; PAGES.push({t:'chapter',ci});
+    for(let k=0;k<c.items.length;k+=perPage) PAGES.push({t:'words',ci,items:c.items.slice(k,k+perPage)});
+  });
+  PAGES.push({t:'end'});
+}
+const anchorOf=p=>p.t==='words'?{w:p.items[0].i}:p.t==='chapter'?{c:p.ci}:p.t==='jamo'?{j:p.items[0].c}:{t:p.t};
+function findAnchor(a){
+  if(!a) return 0;
+  if('w' in a){const i=PAGES.findIndex(p=>p.t==='words'&&p.items.some(x=>x.i===a.w));return i<0?0:i;}
+  if('j' in a){const i=PAGES.findIndex(p=>p.t==='jamo'&&p.items.some(x=>x.c===a.j));return i<0?jamoStart:i;}
+  if('c' in a) return chapterStart[a.c]??0;
+  if(a.t==='end') return PAGES.length-1;
+  if(a.t==='guide') return 1;
+  return 0;
+}
+const wordPage=w=>findAnchor({w:w.i});
+const curChapter=()=>{const p=PAGES[cur];return p&&p.ci!=null?p.ci:0;};
+
+function rowHTML(w){
+  const f=fav.has(w.id), l=learned.has(w.id);
+  const mk=(f||l)?`<span class="mk">${f?ic('star',1):''}${l?'<span class="mk-dot"></span>':''}</span>`:'';
+  const ko=romOn()?`<b>${w.kor}</b><small class="lf-ko" lang="ko">${w.ko}</small>`:`<b>${w.ko}</b><small>${w.kor}</small>`;
+  return `<li class="row${l?' is-learned':''}" data-w="${w.i}"><div class="c c-en"><b>${w.en}</b>${mk}</div><div class="c c-ko${romOn()?' rom':''}">${ko}</div><div class="c c-ar" lang="ar"><b dir="rtl">${w.ar}</b><small>${w.arl}</small></div></li>`;
+}
+function pageHTML(p,i){
+  const foot=`<div class="page-foot">${i}</div>`;
+  if(p.t==='cover') return `<div class="cover"><div class="sadu"></div><div class="cover-main"><div class="cover-title"><span class="t-en">Words</span><span class="t-ar" lang="ar" dir="rtl">كلمات</span><span class="t-ko" lang="ko">단어</span></div><p class="cover-sub">${WORDS.length} everyday words in English, Emirati Arabic and Korean.</p><button class="open-btn" data-act="next">Open the book</button></div><div class="sadu"></div></div>`;
+  if(p.t==='jamo') return `<div class="wp"><div class="wp-head"><b>The Korean alphabet</b><span>${p.kind}</span></div><div class="jgrid">${p.items.map(j=>`<button class="jcell" data-jamo="${j.c}"><span class="jchar" lang="ko">${j.c}</span><span class="jinfo"><b>${j.rom}</b><span>${j.nrom} <span lang="ko" class="lf-ko">${j.name}</span></span><bdi class="lf-ar" lang="ar">${j.ar}</bdi></span></button>`).join('')}</div></div>${foot}`;
+  if(p.t==='guide') return `<div class="guide"><h2>How this book works</h2><ul><li>Swipe or drag a page sideways to turn it.</li><li>Tap a word to hear it in all three languages, save it, or mark it learned.</li><li>Tap a column name to hide it and test yourself. Tap a hidden word to peek.</li><li>Tap a Korean letter on the next pages to see its strokes drawn, then write it yourself.</li><li>Use <b>Write</b> at the bottom to trace any letter or word with your finger.</li><li>Verbs: Emirati in the “he” form (yaakil, he eats), Korean in dictionary form (먹다).</li></ul><h3>Reading the Emirati line</h3><div class="key"><span><b>2</b><i>ء</i></span><span><b>3</b><i>ع</i></span><span><b>5</b><i>خ</i></span><span><b>6</b><i>ط</i></span><span><b>7</b><i>ح</i></span><span><b>9</b><i>ص</i></span><span><b>gh</b><i>غ</i></span><span><b>dh</b><i>ذ ض</i></span><span><b>th</b><i>ث</i></span><span><b>g</b><i>ق</i></span><span><b>ch</b><i>ك</i></span><span><b>y</b><i>ج</i></span></div><p>The Arabic script is the common spelling. The Latin line shows how it sounds in Emirati, so trust it over the audio.</p></div>${foot}`;
+  if(p.t==='chapter'){
+    const c=CH[p.ci], l=c.items.filter(w=>learned.has(w.id)).length;
+    return `<div class="sadu thin"></div><div class="chap"><div class="chap-num">Chapter ${p.ci+1}</div><h2 class="chap-en">${c.en}</h2><div class="chap-ko" lang="ko">${c.ko} <span class="chap-rom">${c.kor}</span></div><div class="chap-ar" lang="ar" dir="rtl">${c.ar}</div><div class="chap-meta">${c.items.length} words, ${l} learned</div><div class="bar"><i style="width:${l/c.items.length*100}%"></i></div></div>${foot}`;
+  }
+  if(p.t==='words'){
+    const h=store.s.hide;
+    return `<div class="wp"><div class="wp-head"><b>${CH[p.ci].en}</b><span>Chapter ${p.ci+1}</span></div><div class="cols"><button data-col="en" class="${h.en?'off':''}" aria-pressed="${!h.en}">English</button><button data-col="ko" class="${h.ko?'off':''}" aria-pressed="${!h.ko}">${romOn()?'Korean':'한국어'}</button><button data-col="ar" class="${h.ar?'off':''}" aria-pressed="${!h.ar}">إماراتي</button></div><ul class="rows">${p.items.map(rowHTML).join('')}</ul></div>${foot}`;
+  }
+  const l=learned.size;
+  return `<div class="sadu thin"></div><div class="end"><h2>The end</h2><p>You have learned ${l} of ${WORDS.length} words and saved ${fav.size}.</p><div class="row-btns"><button class="btn primary" data-act="practice">Practise now</button><button class="btn" data-act="start">Back to the cover</button></div></div>${foot}`;
+}
+function makeFace(p,i){const f=document.createElement('div');f.className='face front';f.dataset.type=p.t;f.innerHTML=pageHTML(p,i);return f;}
+function fillCurrent(i){curEl.innerHTML='';curEl.appendChild(makeFace(PAGES[i],i));}
+function showCurrent(){
+  if(!curEl){curEl=document.createElement('div');curEl.className='page';book.insertBefore(curEl,underShade);}
+  fillCurrent(cur); afterMove();
+}
+function refresh(){if(!turning) fillCurrent(cur);}
+function afterMove(){
+  store.s.anchor=anchorOf(PAGES[cur]); store.save();
+  const p=PAGES[cur];
+  $('#where-t').textContent=p.t==='cover'?'Words':p.t==='guide'?'How this book works':p.t==='jamo'?'The Korean alphabet':p.t==='end'?'The end':CH[p.ci].en;
+  $('#where-p').textContent=cur===0?`${WORDS.length} words in ${CH.length} chapters`:`Page ${cur} of ${PAGES.length-1}`;
+  scrub.max=PAGES.length-1; scrub.value=cur;
+  $('#prev').disabled=cur===0; $('#next').disabled=cur===PAGES.length-1;
+}
+
+/* ---------- page turning ---------- */
+function startTurn(dir,target){
+  if(turning) return null;
+  if(target==null) target=cur+dir;
+  if(target<0||target>=PAGES.length||target===cur) return null;
+  const fl=document.createElement('div'); fl.className='flipper';
+  const front=makeFace(dir===1?PAGES[cur]:PAGES[target],dir===1?cur:target);
+  const back=document.createElement('div'); back.className='face back';
+  const shade=document.createElement('div'); shade.className='shade'; front.appendChild(shade);
+  fl.append(front,back); fl.style.transition='none'; underShade.style.transition='none';
+  book.appendChild(fl);
+  if(dir===1) fillCurrent(target);
+  const t={dir,target,fl,shade,from:dir===1?0:-180,to:dir===1?-180:0,angle:0};
+  turning=t; setAngle(t,t.from); return t;
+}
+function setAngle(t,a){
+  t.angle=a; t.fl.style.transform=`rotateY(${a}deg)`;
+  const s=Math.sin(Math.abs(a)*Math.PI/180);
+  t.shade.style.opacity=(s*.55).toFixed(3);
+  underShade.style.opacity=((1-Math.abs(a)/180)*.9).toFixed(3);
+}
+function animate(t,commit){
+  const end=commit?t.to:t.from, dist=Math.abs(end-t.angle);
+  const dur=REDUCED?0:Math.round(160+440*dist/180);
+  t.fl.style.transition=`transform ${dur}ms cubic-bezier(.3,.7,.25,1)`;
+  t.shade.style.transition=`opacity ${dur}ms linear`;
+  underShade.style.transition=`opacity ${dur}ms linear`;
+  void t.fl.offsetWidth; setAngle(t,end);
+  setTimeout(()=>{
+    if(commit){cur=t.target; if(t.dir===-1) fillCurrent(cur);} else if(t.dir===1) fillCurrent(cur);
+    t.fl.remove(); underShade.style.transition='none'; underShade.style.opacity=0; turning=null; afterMove();
+  },dur+30);
+}
+function jumpTo(i){i=Math.max(0,Math.min(PAGES.length-1,i)); if(i===cur||turning) return; const t=startTurn(i>cur?1:-1,i); if(t) animate(t,true);}
+const turn=d=>jumpTo(cur+d);
+
+let drag=null, suppressClick=false;
+book.addEventListener('pointerdown',e=>{if(turning||e.button>0) return; drag={x:e.clientX,y:e.clientY,id:e.pointerId,t:null,t0:performance.now(),p:0};});
+book.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.id) return;
+  const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+  if(!drag.t){
+    if(drag.dead) return;
+    if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)){
+      drag.t=startTurn(dx<0?1:-1);
+      if(!drag.t){drag.dead=true;return;}
+      drag.x=e.clientX; drag.t0=performance.now();
+      try{book.setPointerCapture(e.pointerId)}catch(_){}
+    }else if(Math.abs(dy)>14) drag=null;
+    return;
+  }
+  const w=book.clientWidth, raw=drag.t.dir===1?-(e.clientX-drag.x):(e.clientX-drag.x);
+  drag.p=Math.max(0,Math.min(1,raw/(w*.85)));
+  setAngle(drag.t,drag.t.dir===1?-180*drag.p:-180*(1-drag.p));
+});
+function endDrag(){
+  if(!drag) return; const d=drag; drag=null;
+  if(d.t){suppressClick=true; setTimeout(()=>suppressClick=false,300);
+    const fast=d.p>.06&&performance.now()-d.t0<260; animate(d.t,d.p>.4||fast);}
+}
+book.addEventListener('pointerup',endDrag);
+book.addEventListener('pointercancel',endDrag);
+
+book.addEventListener('click',e=>{
+  if(suppressClick||turning) return;
+  const act=e.target.closest('[data-act]');
+  if(act){const a=act.dataset.act; if(a==='next') turn(1); else if(a==='start') jumpTo(0); else if(a==='practice') showView(renderPracticeSetup); return;}
+  const j=e.target.closest('[data-jamo]');
+  if(j){openWriteJamo(j.dataset.jamo); return;}
+  const col=e.target.closest('[data-col]');
+  if(col){const c=col.dataset.col; store.s.hide[c]=!store.s.hide[c]; store.save(); applyHide(); refresh(); return;}
+  const row=e.target.closest('.row'); if(!row) return;
+  const cell=e.target.closest('.c');
+  if(cell){const lang=cell.classList.contains('c-en')?'en':cell.classList.contains('c-ko')?'ko':'ar';
+    if(store.s.hide[lang]&&!cell.classList.contains('peek')){cell.classList.add('peek');return;}}
+  const w=WORDS[+row.dataset.w]; showView(()=>renderWord(w,false));
+});
+function applyHide(){['en','ko','ar'].forEach(l=>$('#app').classList.toggle('hide-'+l,!!store.s.hide[l]));}
+
+/* ---------- speech ---------- */
+let voices=[];
+function loadVoices(){try{voices=speechSynthesis.getVoices()||[]}catch(e){voices=[]}}
+if('speechSynthesis' in window){loadVoices(); speechSynthesis.onvoiceschanged=loadVoices;}
+function speak(text,lang){
+  if(!('speechSynthesis' in window)){toast('Audio is not available in this browser.');return;}
+  const pref={en:['en-gb','en-us','en'],ko:['ko-kr','ko'],ar:['ar-ae','ar-sa','ar']}[lang];
+  let v=null;
+  for(const p of pref){v=voices.find(x=>x.lang.replace('_','-').toLowerCase().startsWith(p)); if(v) break;}
+  if(!v&&voices.length&&lang!=='en') toast(`No ${lang==='ko'?'Korean':'Arabic'} voice on this device. Add one in your phone’s language settings.`);
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  if(v){u.voice=v;u.lang=v.lang;} else u.lang={en:'en-GB',ko:'ko-KR',ar:'ar-AE'}[lang];
+  u.rate=lang==='en'?.95:.8;
+  speechSynthesis.speak(u);
+}
+let toastT;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);}
+
+/* ---------- sheet ---------- */
+const sheet=$('#sheet'), sBody=$('#sheet-body'), sBack=$('#sheet-back');
+let viewStack=[], currentView=null;
+const isOpen=()=>sheet.classList.contains('open');
+function openSheet(title,html,mount){
+  $('#sheet-title').textContent=title; sBody.innerHTML=html; sBody.onclick=null; sBody.scrollTop=0;
+  if(mount) mount(sBody);
+  if(!isOpen()) sheet.classList.add('open');
+}
+function showView(fn,push){
+  if(push&&currentView&&isOpen()) viewStack.push(currentView); else viewStack=[];
+  currentView=fn; fn(); sBack.hidden=viewStack.length===0;
+}
+function closeSheet(){sheet.classList.remove('open');viewStack=[];currentView=null;}
+sBack.onclick=()=>{currentView=viewStack.pop(); if(currentView) currentView(); sBack.hidden=viewStack.length===0;};
+$('#sheet-close').onclick=closeSheet;
+sheet.addEventListener('click',e=>{if(e.target===sheet) closeSheet();});
+const listClick=e=>{const r=e.target.closest('.row'); if(r){const w=WORDS[+r.dataset.w]; showView(()=>renderWord(w,true),true);}};
+
+function renderWord(w,fromList){
+  const blocks=['en','ko','ar'].map(l=>{const sub=dsub(l,w);
+    return `<div class="det-block ${l}"><div><div class="det-lang">${LANG[l].name}</div><div class="det-word lf-${dfont(l)}"${l==='ar'?' dir="rtl"':''}>${disp(l,w)}</div>${sub?`<div class="det-sub${l==='ko'&&romOn()?' lf-ko big':''}">${sub}</div>`:''}</div><button class="speak" data-speak="${l}" aria-label="Play ${LANG[l].name}">${ic('speaker')}</button></div>`;}).join('');
+  const f=fav.has(w.id), l=learned.has(w.id);
+  openSheet(CH[w.ch].en,`<div class="det">${blocks}<div class="det-actions"><button class="btn${f?' on':''}" data-fav>${ic('star',f)} ${f?'Saved':'Save'}</button><button class="btn${l?' on':''}" data-learn>${ic('check')} ${l?'Learned':'Mark learned'}</button><button class="btn primary wide" data-write>Practise writing</button>${fromList?`<button class="btn wide" data-goto>Open page ${wordPage(w)}</button>`:''}</div></div>`,body=>{
+    body.onclick=e=>{
+      const s=e.target.closest('[data-speak]'); if(s){speak(LANG[s.dataset.speak].get(w),s.dataset.speak);return;}
+      if(e.target.closest('[data-fav]')){toggleSet(fav,w.id,'fav');renderWord(w,fromList);refresh();return;}
+      if(e.target.closest('[data-learn]')){toggleSet(learned,w.id,'learned');renderWord(w,fromList);refresh();return;}
+      if(e.target.closest('[data-write]')){wr.mode='word';wr.wi=w.i;wr.lang='ko';showView(renderWrite,true);return;}
+      if(e.target.closest('[data-goto]')){closeSheet();jumpTo(wordPage(w));}
+    };
+  });
+}
+function renderContents(){
+  const here=curChapter(), onCh=PAGES[cur].ci!=null;
+  openSheet('Contents',`<ul class="toc"><li><button class="toc-item" data-jump="${jamoStart}"><span class="toc-n lf-ko">한</span><span class="toc-t"><b>The Korean alphabet</b><span class="toc-sub"><span class="lf-ko" lang="ko">한글</span><bdi class="lf-ar" lang="ar">الحروف الكورية</bdi></span></span><span class="toc-p">24</span></button></li>${CH.map((c,ci)=>{const l=c.items.filter(w=>learned.has(w.id)).length;
+    return `<li><button class="toc-item${onCh&&ci===here?' here':''}" data-ch="${ci}"><span class="toc-n">${ci+1}</span><span class="toc-t"><b>${c.en}</b><span class="toc-sub"><span class="lf-ko" lang="ko">${c.ko}</span> ${c.kor}<bdi class="lf-ar" lang="ar">${c.ar}</bdi></span></span><span class="toc-p">${l}/${c.items.length}</span></button></li>`;}).join('')}</ul>`,body=>{
+    body.onclick=e=>{
+      const jp=e.target.closest('[data-jump]'); if(jp){closeSheet(); jumpTo(+jp.dataset.jump); return;}
+      const b=e.target.closest('[data-ch]'); if(b){closeSheet(); jumpTo(chapterStart[+b.dataset.ch]);}};
+    const h=body.querySelector('.here'); if(h) h.scrollIntoView({block:'center'});
+  });
+}
+let lastQuery='';
+function renderSearch(){
+  openSheet('Search',`<input class="search" type="search" placeholder="English, Arabic, Korean or Arabizi" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"><p class="hint" id="sr-hint"></p><ul class="list" id="sr"></ul>`,body=>{
+    const inp=body.querySelector('input'), ul=body.querySelector('#sr'), hint=body.querySelector('#sr-hint');
+    const run=()=>{lastQuery=inp.value; const q=norm(inp.value);
+      if(!q){ul.innerHTML='';hint.textContent='Try “water”, “ماي”, “물” or “7aleeb”.';return;}
+      const res=WORDS.filter(w=>w.key.includes(q)).slice(0,80);
+      hint.textContent=res.length?`${res.length===80?'80+':res.length} ${res.length===1?'word':'words'}`:`No words match “${inp.value}”. Try the English word or a shorter spelling.`;
+      ul.innerHTML=res.map(rowHTML).join('');};
+    inp.value=lastQuery; run(); inp.oninput=run; ul.onclick=listClick;
+    if(!lastQuery) setTimeout(()=>inp.focus(),60);
+  });
+}
+function renderSaved(){
+  const list=WORDS.filter(w=>fav.has(w.id));
+  openSheet('Saved words',list.length?`<p class="hint">${list.length} saved</p><ul class="list">${list.map(rowHTML).join('')}</ul>`:`<div class="empty"><p>Tap <b>Save</b> on any word and it will appear here.</p><p>You can practise your saved words too.</p></div>`,body=>{
+    const ul=body.querySelector('.list'); if(ul) ul.onclick=listClick;
+  });
+}
+
+/* ---------- writing ---------- */
+const wr={mode:'jamo',ji:0,wi:null,lang:'ko',model:true};
+function openWriteJamo(c){const i=JAMO.findIndex(j=>j.c===c); wr.mode='jamo'; wr.ji=i<0?0:i; showView(renderWrite);}
+function writeWords(){const s=WORDS.filter(w=>fav.has(w.id)); return s.length?s:CH[curChapter()].items;}
+function renderWrite(){
+  const jamoMode=wr.mode==='jamo';
+  const list=jamoMode?JAMO:writeWords();
+  if(!jamoMode){const ok=list.some(w=>w.i===wr.wi); if(!ok) wr.wi=list[0].i;}
+  const w=jamoMode?null:WORDS[wr.wi];
+  const target=jamoMode?JAMO[wr.ji].c:LANG[wr.lang].get(w);
+  const strip=jamoMode
+    ? JAMO.map((j,k)=>`<button class="schip lf-ko${k===wr.ji?' on':''}" data-j="${k}">${j.c}</button>`).join('')
+    : list.map(x=>`<button class="schip${x.i===wr.wi?' on':''}" data-wi="${x.i}">${x.en}</button>`).join('');
+  const info=jamoMode
+    ? `<b>${JAMO[wr.ji].nrom}</b> <span lang="ko" class="lf-ko">${JAMO[wr.ji].name}</span> — sounds like ${JAMO[wr.ji].rom} <bdi class="lf-ar" lang="ar">${JAMO[wr.ji].ar}</bdi>`
+    : `<b>${w.en}</b> — ${w.kor} <span class="lf-ko" lang="ko">${w.ko}</span> — <bdi class="lf-ar" lang="ar">${w.ar}</bdi> ${w.arl}`;
+  openSheet('Write',`
+    <div class="chips"><button class="chip" data-mode="jamo" aria-pressed="${jamoMode}">Korean letters</button><button class="chip" data-mode="word" aria-pressed="${!jamoMode}">Words</button></div>
+    ${jamoMode?'':`<div class="chips">${['ko','ar','en'].map(l=>`<button class="chip" data-lang="${l}" aria-pressed="${wr.lang===l}">${LANG[l].name}</button>`).join('')}</div>`}
+    <div class="strip">${strip}</div>
+    <div class="pad">
+      <div class="pad-model lf-${jamoMode?'ko':wr.lang}${wr.model?'':' off'}"${(!jamoMode&&wr.lang==='ar')?' dir="rtl"':''}>${target}</div>
+      <svg class="pad-strokes" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      <canvas class="pad-ink"></canvas>
+    </div>
+    <p class="pad-info">${info}</p>
+    <div class="pad-btns">
+      ${jamoMode?`<button class="btn primary" data-strokes>Show strokes</button>`:`<button class="btn" data-say>${ic('speaker')} Listen</button>`}
+      <button class="btn" data-undo>Undo</button>
+      <button class="btn" data-clear>Clear</button>
+      <button class="btn" data-model>${wr.model?'Hide model':'Show model'}</button>
+    </div>`,body=>{
+    const pad=setupPad(body.querySelector('.pad-ink'));
+    body.onclick=e=>{
+      const m=e.target.closest('[data-mode]'); if(m){wr.mode=m.dataset.mode; renderWrite(); return;}
+      const lg=e.target.closest('[data-lang]'); if(lg){wr.lang=lg.dataset.lang; renderWrite(); return;}
+      const jc=e.target.closest('[data-j]'); if(jc){wr.ji=+jc.dataset.j; renderWrite(); return;}
+      const wc=e.target.closest('[data-wi]'); if(wc){wr.wi=+wc.dataset.wi; renderWrite(); return;}
+      if(e.target.closest('[data-undo]')){pad.undo(); return;}
+      if(e.target.closest('[data-clear]')){pad.clear(); return;}
+      if(e.target.closest('[data-model]')){wr.model=!wr.model; renderWrite(); return;}
+      if(e.target.closest('[data-say]')){speak(target,wr.lang); return;}
+      if(e.target.closest('[data-strokes]')) playStrokes(body.querySelector('.pad-strokes'),JAMO[wr.ji].s);
+    };
+    const on=body.querySelector('.schip.on'); if(on) on.scrollIntoView({block:'nearest',inline:'center'});
+    if(jamoMode) setTimeout(()=>playStrokes(body.querySelector('.pad-strokes'),JAMO[wr.ji].s),260);
+  });
+}
+function setupPad(cv){
+  const ctx=cv.getContext('2d'), rect=cv.getBoundingClientRect(), dpr=Math.min(3,window.devicePixelRatio||1);
+  cv.width=Math.max(1,rect.width*dpr); cv.height=Math.max(1,rect.height*dpr); ctx.scale(dpr,dpr);
+  ctx.lineWidth=8; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()||'#222';
+  let strokes=[], cur=null;
+  const pos=e=>{const b=cv.getBoundingClientRect();return[e.clientX-b.left,e.clientY-b.top];};
+  const redraw=()=>{ctx.clearRect(0,0,rect.width,rect.height);
+    strokes.forEach(s=>{ctx.beginPath();s.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();});};
+  cv.addEventListener('pointerdown',e=>{try{cv.setPointerCapture(e.pointerId)}catch(_){}
+    cur=[pos(e)]; strokes.push(cur); redraw(); e.preventDefault();});
+  cv.addEventListener('pointermove',e=>{if(!cur) return; cur.push(pos(e)); redraw(); e.preventDefault();});
+  const up=()=>{cur=null;};
+  cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up); cv.addEventListener('pointerleave',up);
+  return {undo(){strokes.pop();redraw();},clear(){strokes=[];redraw();}};
+}
+function playStrokes(svg,paths){
+  if(!svg) return;
+  svg.innerHTML=paths.map(d=>`<path d="${d}"/>`).join(''); svg.style.opacity='1';
+  const els=[...svg.querySelectorAll('path')]; let t=0;
+  els.forEach(p=>{const L=p.getTotalLength(); p.style.strokeDasharray=L; p.style.strokeDashoffset=L;});
+  els.forEach(p=>{const dur=REDUCED?0:520;
+    setTimeout(()=>{p.style.transition=`stroke-dashoffset ${dur}ms linear`; p.style.strokeDashoffset='0';},t);
+    t+=dur+150;});
+  setTimeout(()=>{svg.style.opacity='0'; setTimeout(()=>{svg.innerHTML='';},500);},t+900);
+}
+
+/* ---------- practice ---------- */
+const pq={from:'en',to:'ko',pool:'chapter',qs:[],n:0,score:0,missed:[]};
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+function renderPracticeSetup(msg){
+  const chip=(g,v,label)=>`<button class="chip" data-g="${g}" data-v="${v}" aria-pressed="${pq[g]===v}">${label}</button>`;
+  const ci=curChapter();
+  openSheet('Practice',`<h4>Show me</h4><div class="chips">${['en','ko','ar'].map(l=>chip('from',l,LANG[l].name)).join('')}</div><h4>I answer in</h4><div class="chips">${['en','ko','ar'].map(l=>chip('to',l,LANG[l].name)).join('')}</div><h4>Words from</h4><div class="chips">${chip('pool','chapter',CH[ci].en)}${chip('pool','book','Whole book')}${chip('pool','saved',`Saved (${fav.size})`)}</div>${msg?`<p class="warn">${msg}</p>`:''}<button class="btn primary wide" data-start>Start 10 questions</button>`,body=>{
+    body.onclick=e=>{
+      const c=e.target.closest('.chip');
+      if(c){pq[c.dataset.g]=c.dataset.v;
+        if(pq.from===pq.to){const other=['en','ko','ar'].find(l=>l!==pq[c.dataset.g]); if(c.dataset.g==='from') pq.to=other; else pq.from=other;}
+        renderPracticeSetup(); return;}
+      if(e.target.closest('[data-start]')) startPractice();
+    };
+  });
+}
+function startPractice(){
+  const pool=pq.pool==='chapter'?CH[curChapter()].items:pq.pool==='saved'?WORDS.filter(w=>fav.has(w.id)):WORDS;
+  if(pool.length<4){renderPracticeSetup('Save at least 4 words to practise with saved words.');return;}
+  const T=LANG[pq.to];
+  pq.qs=shuffle(pool.slice()).slice(0,Math.min(10,pool.length)).map(w=>{
+    const cand=shuffle(CH[w.ch].items.filter(x=>x!==w));
+    const seen=new Set([T.get(w)]), opts=[w];
+    for(const x of cand){if(opts.length===4) break; if(!seen.has(T.get(x))){seen.add(T.get(x));opts.push(x);}}
+    while(opts.length<4){const x=WORDS[Math.floor(Math.random()*WORDS.length)]; if(!seen.has(T.get(x))){seen.add(T.get(x));opts.push(x);}}
+    return {w,opts:shuffle(opts)};
+  });
+  pq.n=0; pq.score=0; pq.missed=[]; renderQuestion();
+}
+function renderQuestion(){
+  const q=pq.qs[pq.n], F=LANG[pq.from], T=LANG[pq.to], last=pq.n+1>=pq.qs.length;
+  openSheet('Practice',`<div class="q-top"><span>Question ${pq.n+1} of ${pq.qs.length}</span><span>Score ${pq.score}</span></div><div class="bar"><i style="width:${pq.n/pq.qs.length*100}%"></i></div><div class="q-prompt"><div class="q-word lf-${dfont(pq.from)}"${pq.from==='ar'?' dir="rtl"':''}>${disp(pq.from,q.w)}</div>${dsub(pq.from,q.w)?`<div class="det-sub${pq.from==='ko'&&romOn()?' lf-ko':''}">${dsub(pq.from,q.w)}</div>`:''}<button class="speak sm" data-say aria-label="Play">${ic('speaker')}</button></div><div class="q-opts">${q.opts.map((o,k)=>`<button class="opt" data-k="${k}"><span class="lf-${dfont(pq.to)}"${pq.to==='ar'?' dir="rtl"':''}>${disp(pq.to,o)}</span>${dsub(pq.to,o)?`<small${pq.to==='ko'&&romOn()?' class="lf-ko"':''}>${dsub(pq.to,o)}</small>`:''}</button>`).join('')}</div><button class="btn primary wide" data-next hidden>${last?'See results':'Next question'}</button>`,body=>{
+    let done=false;
+    body.onclick=e=>{
+      if(e.target.closest('[data-say]')){speak(F.get(q.w),pq.from);return;}
+      const b=e.target.closest('.opt');
+      if(b&&!done){done=true; const ok=q.opts[+b.dataset.k]===q.w;
+        if(ok) pq.score++; else pq.missed.push(q.w);
+        body.querySelectorAll('.opt').forEach((el,k)=>{el.disabled=true; if(q.opts[k]===q.w) el.classList.add('right');});
+        if(!ok) b.classList.add('wrong');
+        speak(T.get(q.w),pq.to); body.querySelector('[data-next]').hidden=false; return;}
+      if(e.target.closest('[data-next]')){pq.n++; pq.n<pq.qs.length?renderQuestion():renderResult();}
+    };
+  });
+}
+function renderResult(){
+  const n=pq.qs.length;
+  openSheet('Practice',`<div class="score">${pq.score}/${n}</div><p class="score-sub">${pq.score===n?'Every answer right.':pq.missed.length+' to review. Tap a word to hear it again.'}</p>${pq.missed.length?`<ul class="list">${pq.missed.map(rowHTML).join('')}</ul>`:''}<div class="det-actions" style="margin-top:16px"><button class="btn primary" data-again>Practise again</button><button class="btn" data-setup>Change settings</button></div>`,body=>{
+    body.onclick=e=>{
+      if(e.target.closest('[data-again]')){startPractice();return;}
+      if(e.target.closest('[data-setup]')){renderPracticeSetup();return;}
+      const r=e.target.closest('.row'); if(r){const w=WORDS[+r.dataset.w]; showView(()=>renderWord(w,true),true);}
+    };
+  });
+}
+
+/* ---------- chrome ---------- */
+$('#prev').innerHTML=ic('left'); $('#next').innerHTML=ic('right'); $('#theme').innerHTML=ic('theme');
+sBack.innerHTML=ic('left'); $('#sheet-close').innerHTML=ic('close');
+const TABS={contents:['book','Contents',renderContents],search:['search','Search',renderSearch],write:['pen','Write',renderWrite],saved:['star','Saved',renderSaved],practice:['cards','Practice',()=>renderPracticeSetup()]};
+document.querySelectorAll('.tab').forEach(b=>{const [i,l,fn]=TABS[b.dataset.tab]; b.innerHTML=ic(i)+l; b.onclick=()=>showView(fn);});
+$('#prev').onclick=()=>turn(-1); $('#next').onclick=()=>turn(1);
+function paintRoman(){$('#roman').innerHTML=`<span>${romOn()?'한':'A'}</span>`;}
+paintRoman();
+$('#roman').onclick=()=>{store.s.roman=!romOn(); store.save(); paintRoman(); refresh();
+  toast(romOn()?'Korean shown in Roman letters first.':'Korean shown in Hangul first.');};
+$('#theme').onclick=()=>{store.s.theme=isDark()?'light':'dark'; store.save(); applyTheme();};
+scrub.addEventListener('input',()=>{$('#where-p').textContent=`Go to page ${scrub.value}`;});
+scrub.addEventListener('change',()=>{const v=+scrub.value; if(v!==cur) jumpTo(v); else afterMove();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&isOpen()){closeSheet();return;}
+  if(isOpen()||/input|textarea/i.test(e.target.tagName)) return;
+  if(e.key==='ArrowRight') turn(1); if(e.key==='ArrowLeft') turn(-1);
+});
+
+function layout(){
+  const anchor=PAGES.length?anchorOf(PAGES[cur]):store.s.anchor;
+  perPage=computePerPage(); buildPages(); cur=findAnchor(anchor); showCurrent();
+}
+let rt;
+window.addEventListener('resize',()=>{clearTimeout(rt); rt=setTimeout(()=>{if(turning) return; if(computePerPage()!==perPage) layout();},160);});
+applyHide();
+requestAnimationFrame(layout);
+</script>
+</body>
+</html>
